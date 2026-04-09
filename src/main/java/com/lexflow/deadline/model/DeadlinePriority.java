@@ -1,4 +1,4 @@
-package org.example.model;
+package com.lexflow.deadline.model;
 
 public enum DeadlinePriority {
     LOW,

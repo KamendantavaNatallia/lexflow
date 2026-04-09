@@ -1,7 +1,7 @@
-package org.example.repository;
+package com.lexflow.case_.repository;
 
-import org.example.model.CaseStatus;
-import org.example.model.LegalCase;
+import com.lexflow.case_.model.CaseStatus;
+import com.lexflow.case_.model.LegalCase;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

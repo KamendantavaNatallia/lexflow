@@ -1,6 +1,6 @@
-package org.example.controller;
+package com.lexflow.deadline.controller;
 
-import org.example.service.DeadlineService;
+import com.lexflow.deadline.service.DeadlineService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

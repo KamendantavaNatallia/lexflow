@@ -1,6 +1,6 @@
-package org.example.repository;
+package com.lexflow.note.repository;
 
-import org.example.model.Note;
+import com.lexflow.note.model.Note;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface NoteRepository extends JpaRepository<Note, Long> {

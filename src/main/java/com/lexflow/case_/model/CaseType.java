@@ -1,4 +1,4 @@
-package org.example.model;
+package com.lexflow.case_.model;
 
 public enum CaseType {
     CONTRACT,

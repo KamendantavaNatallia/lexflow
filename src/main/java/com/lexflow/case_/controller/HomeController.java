@@ -1,7 +1,7 @@
-package org.example.controller;
+package com.lexflow.case_.controller;
 
-import org.example.service.DeadlineService;
-import org.example.service.LegalCaseService;
+import com.lexflow.deadline.service.DeadlineService;
+import com.lexflow.case_.service.LegalCaseService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

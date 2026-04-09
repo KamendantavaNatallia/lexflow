@@ -1,8 +1,8 @@
-package org.example.service;
+package com.lexflow.case_.service;
 
-import org.example.model.CaseStatus;
-import org.example.model.LegalCase;
-import org.example.repository.LegalCaseRepository;
+import com.lexflow.case_.model.CaseStatus;
+import com.lexflow.case_.model.LegalCase;
+import com.lexflow.case_.repository.LegalCaseRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

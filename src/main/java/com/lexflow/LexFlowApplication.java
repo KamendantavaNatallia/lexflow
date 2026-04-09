@@ -1,4 +1,4 @@
-package org.example;
+package com.lexflow;
 
 
 import org.springframework.boot.SpringApplication;

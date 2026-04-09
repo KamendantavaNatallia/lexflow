@@ -1,5 +1,6 @@
-package org.example.model;
+package com.lexflow.deadline.model;
 
+import com.lexflow.case_.model.LegalCase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

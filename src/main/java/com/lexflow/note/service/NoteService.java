@@ -1,9 +1,9 @@
-package org.example.service;
+package com.lexflow.note.service;
 
-import org.example.model.LegalCase;
-import org.example.model.Note;
-import org.example.repository.LegalCaseRepository;
-import org.example.repository.NoteRepository;
+import com.lexflow.case_.model.LegalCase;
+import com.lexflow.note.model.Note;
+import com.lexflow.case_.repository.LegalCaseRepository;
+import com.lexflow.note.repository.NoteRepository;
 import org.springframework.stereotype.Service;
 
 @Service

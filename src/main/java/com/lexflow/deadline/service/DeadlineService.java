@@ -1,9 +1,9 @@
-package org.example.service;
+package com.lexflow.deadline.service;
 
-import org.example.model.Deadline;
-import org.example.model.LegalCase;
-import org.example.repository.DeadlineRepository;
-import org.example.repository.LegalCaseRepository;
+import com.lexflow.case_.model.LegalCase;
+import com.lexflow.deadline.model.Deadline;
+import com.lexflow.deadline.repository.DeadlineRepository;
+import com.lexflow.case_.repository.LegalCaseRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

@@ -1,14 +1,14 @@
-package org.example.controller;
+package com.lexflow.case_.controller;
 
+import com.lexflow.case_.model.LegalCase;
 import jakarta.validation.Valid;
-import org.example.model.Deadline;
-import org.example.model.LegalCase;
-import org.example.model.Note;
-import org.example.model.Document;
-import org.example.service.DeadlineService;
-import org.example.service.DocumentService;
-import org.example.service.LegalCaseService;
-import org.example.service.NoteService;
+import com.lexflow.deadline.model.Deadline;
+import com.lexflow.note.model.Note;
+import com.lexflow.document.model.Document;
+import com.lexflow.deadline.service.DeadlineService;
+import com.lexflow.document.service.DocumentService;
+import com.lexflow.case_.service.LegalCaseService;
+import com.lexflow.note.service.NoteService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;

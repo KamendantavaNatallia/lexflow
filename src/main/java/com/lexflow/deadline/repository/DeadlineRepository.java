@@ -1,6 +1,6 @@
-package org.example.repository;
+package com.lexflow.deadline.repository;
 
-import org.example.model.Deadline;
+import com.lexflow.deadline.model.Deadline;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;

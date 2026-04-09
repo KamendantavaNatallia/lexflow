@@ -1,5 +1,8 @@
-package org.example.model;
+package com.lexflow.case_.model;
 
+import com.lexflow.deadline.model.Deadline;
+import com.lexflow.document.model.Document;
+import com.lexflow.note.model.Note;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
