@@ -3,82 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${appName}">LexFlow</title>
+    <title>LexFlow</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/">LexFlow</a>
+        <a class="navbar-brand fw-bold" th:href="@{/}">LexFlow</a>
         <div class="navbar-nav">
-            <a class="nav-link active" href="/">Home</a>
-            <a class="nav-link" href="/cases">Cases</a>
-            <a class="nav-link" href="/deadlines/overdue">Overdue Deadlines</a>
+            <a class="nav-link active" th:href="@{/}">Home</a>
+            <a class="nav-link" th:href="@{/cases}">Cases</a>
+            <a class="nav-link" th:href="@{/deadlines/overdue}">Overdue Deadlines</a>
         </div>
     </div>
 </nav>
 
 <div class="container py-5">
-    <div class="mb-4">
-        <h1 class="display-5 fw-bold" th:text="${appName}">LexFlow</h1>
-        <p class="lead text-muted" th:text="${message}">
-            Your Legal Deadline Tracker is running successfully.
+    <div class="mb-5">
+        <h1 class="fw-bold mb-3">Welcome to LexFlow</h1>
+        <p class="lead text-muted mb-4">
+            Manage legal cases, deadlines, notes, and documents in one place.
         </p>
+        <div class="d-flex gap-2 flex-wrap">
+            <a th:href="@{/cases}" class="btn btn-dark">View Cases</a>
+            <a th:href="@{/cases/new}" class="btn btn-outline-secondary">Create New Case</a>
+        </div>
     </div>
 
     <div class="row g-4">
-        <div class="col-md-3">
-            <a href="/cases" class="text-decoration-none text-dark">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Total Cases</h5>
-                        <p class="display-6 mb-2" th:text="${totalCases}">0</p>
-                        <small class="text-muted">View all cases</small>
-                    </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Cases</h5>
+                    <p class="display-6 fw-bold mb-2" th:text="${totalCases}">0</p>
+                    <p class="text-muted mb-3">Total number of legal cases.</p>
+                    <a th:href="@{/cases}" class="btn btn-sm btn-outline-dark">Open Cases</a>
                 </div>
-            </a>
+            </div>
         </div>
 
-        <div class="col-md-3">
-            <a href="/cases" class="text-decoration-none text-dark">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Open Cases</h5>
-                        <p class="display-6 mb-2" th:text="${openCases}">0</p>
-                        <small class="text-muted">View active cases</small>
-                    </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Overdue Deadlines</h5>
+                    <p class="display-6 fw-bold mb-2" th:text="${overdueDeadlines}">0</p>
+                    <p class="text-muted mb-3">Deadlines that already passed and are not completed.</p>
+                    <a th:href="@{/deadlines/overdue}" class="btn btn-sm btn-outline-dark">View Overdue</a>
                 </div>
-            </a>
+            </div>
         </div>
 
-        <div class="col-md-3">
-            <a href="/deadlines/overdue" class="text-decoration-none text-dark">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Overdue Deadlines</h5>
-                        <p class="display-6 mb-2 text-danger" th:text="${overdueDeadlines}">0</p>
-                        <small class="text-muted">View overdue items</small>
-                    </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Upcoming Deadlines</h5>
+                    <p class="display-6 fw-bold mb-2" th:text="${upcomingDeadlines}">0</p>
+                    <p class="text-muted mb-3">Active deadlines coming soon.</p>
+                    <a th:href="@{/cases}" class="btn btn-sm btn-outline-dark">Go to Cases</a>
                 </div>
-            </a>
+            </div>
         </div>
-
-        <div class="col-md-3">
-            <a href="/deadlines/upcoming" class="text-decoration-none text-dark">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Upcoming Deadlines</h5>
-                        <p class="display-6 mb-2 text-primary" th:text="${upcomingDeadlines}">0</p>
-                        <small class="text-muted">View upcoming items</small>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <div class="mt-5">
-        <a href="/cases" class="btn btn-dark btn-lg">Go to Cases</a>
     </div>
 </div>
 
