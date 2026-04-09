@@ -1,5 +1,7 @@
 package com.lexflow.document.service;
 
+import com.lexflow.case_.model.LegalCase;
+import com.lexflow.case_.repository.LegalCaseRepository;
 import com.lexflow.document.model.Document;
 import com.lexflow.document.repository.DocumentRepository;
 import org.springframework.stereotype.Service;
@@ -11,9 +13,12 @@ import java.util.Optional;
 public class DocumentService {
 
     private final DocumentRepository documentRepository;
+    private final LegalCaseRepository legalCaseRepository;
 
-    public DocumentService(DocumentRepository documentRepository) {
+    public DocumentService(DocumentRepository documentRepository,
+                           LegalCaseRepository legalCaseRepository) {
         this.documentRepository = documentRepository;
+        this.legalCaseRepository = legalCaseRepository;
     }
 
     public List<Document> getAllDocuments() {
@@ -36,11 +41,20 @@ public class DocumentService {
         return documentRepository.save(document);
     }
 
-    public void deleteDocument(Long id) {
-        documentRepository.deleteById(id);
+    public Document addDocumentToCase(Long caseId, Document document) {
+        LegalCase legalCase = legalCaseRepository.findById(caseId).orElse(null);
+        if (legalCase == null) {
+            return null;
+        }
+
+        document.setLegalCase(legalCase);
+        return documentRepository.save(document);
     }
 
-    public Document addDocumentToCase(Long caseId, Document document) {
-        return documentRepository.save(document);
+    public void deleteDocument(Long id) {
+        Document document = documentRepository.findById(id).orElse(null);
+        if (document != null) {
+            documentRepository.delete(document);
+        }
     }
 }
