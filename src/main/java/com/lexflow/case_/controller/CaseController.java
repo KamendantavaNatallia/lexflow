@@ -12,6 +12,7 @@ import com.lexflow.note.service.NoteService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -312,7 +313,8 @@ public class CaseController {
     public String addDocument(@PathVariable Long id,
                               @Valid @ModelAttribute Document document,
                               BindingResult bindingResult,
-                              Model model) {
+                              Model model,
+                              RedirectAttributes redirectAttributes) {
         LegalCase selectedCase = legalCaseService.getCaseById(id);
         if (selectedCase == null) {
             return "redirect:/cases";
@@ -324,11 +326,14 @@ public class CaseController {
         }
 
         documentService.addDocumentToCase(id, document);
+        redirectAttributes.addFlashAttribute("successMessage", "Document saved successfully.");
+
         return "redirect:/cases/" + id;
     }
 
     @PostMapping("/documents/{id}/delete")
-    public String deleteDocument(@PathVariable Long id) {
+    public String deleteDocument(@PathVariable Long id,
+                                 RedirectAttributes redirectAttributes) {
         Document document = documentService.getDocumentById(id);
         if (document == null) {
             return "redirect:/cases";
@@ -336,6 +341,7 @@ public class CaseController {
 
         Long caseId = document.getLegalCase().getId();
         documentService.deleteDocument(id);
+        redirectAttributes.addFlashAttribute("successMessage", "Document deleted successfully.");
 
         return "redirect:/cases/" + caseId;
     }
