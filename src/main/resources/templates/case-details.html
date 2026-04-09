@@ -10,74 +10,46 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/">LexFlow</a>
+        <a class="navbar-brand fw-bold" th:href="@{/}">LexFlow</a>
         <div class="navbar-nav">
-            <a class="nav-link" href="/">Home</a>
-            <a class="nav-link active" href="/cases">Cases</a>
-            <a class="nav-link" href="/deadlines/overdue">Overdue Deadlines</a>
+            <a class="nav-link" th:href="@{/}">Home</a>
+            <a class="nav-link active" th:href="@{/cases}">Cases</a>
+            <a class="nav-link" th:href="@{/deadlines/overdue}">Overdue Deadlines</a>
         </div>
     </div>
 </nav>
 
 <div class="container py-5">
     <div class="mb-4">
-        <a href="/cases" class="btn btn-outline-secondary btn-sm mb-3">← Back to Cases</a>
-        <div class="d-flex justify-content-between align-items-start gap-3">
+        <a th:href="@{/cases}" class="btn btn-outline-secondary btn-sm mb-3">← Back to Cases</a>
+
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
             <div>
                 <h1 class="fw-bold mb-2" th:text="${legalCase.title}">Case Title</h1>
-                <div class="d-flex gap-2 flex-wrap">
-                    <span class="badge rounded-pill text-bg-light border"
-                          th:text="${legalCase.type}">
-                        CONTRACT
-                    </span>
-
-                    <span class="badge rounded-pill"
-                          th:text="${legalCase.status}"
-                          th:classappend="
-                            ${legalCase.status == 'OPEN'} ? ' text-bg-primary' :
-                            (${legalCase.status == 'IN_PROGRESS'} ? ' text-bg-warning' :
-                            (${legalCase.status == 'ON_HOLD'} ? ' text-bg-secondary' :
-                            (${legalCase.status == 'CLOSED'} ? ' text-bg-success' : ' text-bg-light')))"
-                    >
-                        Status
-                    </span>
-                </div>
+                <p class="mb-1">
+                    <strong>Client:</strong>
+                    <span th:text="${legalCase.client}">Client Name</span>
+                </p>
+                <p class="mb-1">
+                    <strong>Type:</strong>
+                    <span th:text="${legalCase.type}">Type</span>
+                </p>
+                <p class="mb-0">
+                    <strong>Status:</strong>
+                    <span th:text="${legalCase.status}">Status</span>
+                </p>
             </div>
 
             <div class="d-flex gap-2">
-                <a th:href="@{'/cases/' + ${legalCase.id} + '/edit'}" class="btn btn-outline-primary">
+                <a th:href="@{/cases/{id}/edit(id=${legalCase.id})}" class="btn btn-outline-primary">
                     Edit Case
                 </a>
 
-                <form th:action="@{'/cases/' + ${legalCase.id} + '/delete'}" method="post"
-                      onsubmit="return confirm('Delete this case and all related deadlines and notes?');">
+                <form th:action="@{/cases/{id}/delete(id=${legalCase.id})}" method="post"
+                      onsubmit="return confirm('Delete this case and all related data?');">
                     <button type="submit" class="btn btn-danger">Delete Case</button>
                 </form>
             </div>
-        </div>
-    </div>
-
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body">
-            <h4 class="mb-3">Case Information</h4>
-            <p><strong>Client:</strong> <span th:text="${legalCase.client}">Client Name</span></p>
-            <p>
-                <strong>Type:</strong>
-                <span class="badge rounded-pill text-bg-light border" th:text="${legalCase.type}">Type</span>
-            </p>
-            <p>
-                <strong>Status:</strong>
-                <span class="badge rounded-pill"
-                      th:text="${legalCase.status}"
-                      th:classappend="
-                        ${legalCase.status == 'OPEN'} ? ' text-bg-primary' :
-                        (${legalCase.status == 'IN_PROGRESS'} ? ' text-bg-warning' :
-                        (${legalCase.status == 'ON_HOLD'} ? ' text-bg-secondary' :
-                        (${legalCase.status == 'CLOSED'} ? ' text-bg-success' : ' text-bg-light')))"
-                >
-                    Status
-                </span>
-            </p>
         </div>
     </div>
 
@@ -85,25 +57,31 @@
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <h5>Documents</h5>
-
-                    <div th:if="${#lists.isEmpty(legalCase.documents)}">
-                        <p class="text-muted">No documents yet.</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Documents</h5>
+                        <a th:href="@{/cases/{id}/documents/new(id=${legalCase.id})}" class="btn btn-sm btn-dark">
+                            Add Document
+                        </a>
                     </div>
 
-                    <ul class="list-group list-group-flush mb-3" th:if="${!#lists.isEmpty(legalCase.documents)}">
+                    <div th:if="${legalCase.documents == null or legalCase.documents.empty}">
+                        <p class="text-muted mb-0">No documents yet.</p>
+                    </div>
+
+                    <ul class="list-group list-group-flush" th:if="${legalCase.documents != null and !legalCase.documents.empty}">
                         <li class="list-group-item px-0" th:each="document : ${legalCase.documents}">
                             <div class="d-flex justify-content-between align-items-start gap-2">
                                 <div>
-                                    <div class="fw-semibold" th:text="${document.name}">Document Name</div>
-                                    <div class="small text-muted" th:text="${document.type}">Document Type</div>
-                                    <div class="small mt-1" th:if="${document.description != null and !document.description.isEmpty()}"
-                                         th:text="${document.description}">
+                                    <div class="fw-semibold" th:text="${document.fileName}">Document Name</div>
+                                    <div class="small text-muted" th:text="${document.fileType}">Document Type</div>
+                                    <div class="small mt-1"
+                                         th:if="${document.content != null and !document.content.isEmpty()}"
+                                         th:text="${document.content}">
                                         Description
                                     </div>
                                 </div>
 
-                                <form th:action="@{'/documents/' + ${document.id} + '/delete'}"
+                                <form th:action="@{/documents/{id}/delete(id=${document.id})}"
                                       method="post"
                                       onsubmit="return confirm('Delete this document?');">
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
@@ -111,10 +89,6 @@
                             </div>
                         </li>
                     </ul>
-
-                    <a th:href="@{'/cases/' + ${legalCase.id} + '/documents/new'}" class="btn btn-sm btn-dark">
-                        Add Document
-                    </a>
                 </div>
             </div>
         </div>
@@ -122,62 +96,48 @@
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <h5>Deadlines</h5>
-
-                    <div th:if="${#lists.isEmpty(legalCase.deadlines)}">
-                        <p class="text-muted">No deadlines yet.</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Deadlines</h5>
+                        <a th:href="@{/cases/{id}/deadlines/new(id=${legalCase.id})}" class="btn btn-sm btn-dark">
+                            Add Deadline
+                        </a>
                     </div>
 
-                    <ul class="list-group list-group-flush mb-3" th:if="${!#lists.isEmpty(legalCase.deadlines)}">
+                    <div th:if="${legalCase.deadlines == null or legalCase.deadlines.empty}">
+                        <p class="text-muted mb-0">No deadlines yet.</p>
+                    </div>
+
+                    <ul class="list-group list-group-flush" th:if="${legalCase.deadlines != null and !legalCase.deadlines.empty}">
                         <li class="list-group-item px-0" th:each="deadline : ${legalCase.deadlines}">
                             <div class="d-flex justify-content-between align-items-start gap-2">
                                 <div>
                                     <div class="fw-semibold" th:text="${deadline.title}">Deadline title</div>
-
-                                    <div class="small mt-1">
-                                        Due:
-                                        <span th:text="${deadline.dueDate}"
-                                              th:classappend="${!deadline.completed and deadline.dueDate.isBefore(T(java.time.LocalDate).now())} ? ' text-danger fw-semibold' : ''">
-                                            2026-04-15
-                                        </span>
+                                    <div class="small">
+                                        <strong>Due:</strong>
+                                        <span th:text="${deadline.dueDate}">2026-04-09</span>
                                     </div>
-
-                                    <div class="small mt-1">
-                                        Priority:
-                                        <span class="badge rounded-pill"
-                                              th:text="${deadline.priority}"
-                                              th:classappend="
-                                                ${deadline.priority == 'LOW'} ? ' text-bg-light border' :
-                                                (${deadline.priority == 'MEDIUM'} ? ' text-bg-secondary' :
-                                                (${deadline.priority == 'HIGH'} ? ' text-bg-warning' :
-                                                (${deadline.priority == 'URGENT'} ? ' text-bg-danger' : ' text-bg-light')))"
-                                        >
-                                            HIGH
-                                        </span>
+                                    <div class="small">
+                                        <strong>Priority:</strong>
+                                        <span th:text="${deadline.priority}">HIGH</span>
                                     </div>
-
-                                    <div class="small mt-2">
-                                        <span th:if="${deadline.completed}" class="badge bg-success">Completed</span>
-                                        <span th:if="${!deadline.completed and deadline.dueDate.isBefore(T(java.time.LocalDate).now())}"
-                                              class="badge bg-danger">Overdue</span>
-                                        <span th:if="${!deadline.completed and !deadline.dueDate.isBefore(T(java.time.LocalDate).now())}"
-                                              class="badge bg-warning text-dark">Active</span>
+                                    <div class="small">
+                                        <strong>Completed:</strong>
+                                        <span th:text="${deadline.completed ? 'Yes' : 'No'}">No</span>
                                     </div>
                                 </div>
 
                                 <div class="d-flex flex-column gap-2">
-                                    <a th:href="@{'/deadlines/' + ${deadline.id} + '/edit'}"
-                                       class="btn btn-sm btn-outline-primary">
+                                    <a th:href="@{/deadlines/{id}/edit(id=${deadline.id})}" class="btn btn-sm btn-outline-primary">
                                         Edit
                                     </a>
 
                                     <form th:if="${!deadline.completed}"
-                                          th:action="@{'/deadlines/' + ${deadline.id} + '/complete'}"
+                                          th:action="@{/deadlines/{id}/complete(id=${deadline.id})}"
                                           method="post">
                                         <button type="submit" class="btn btn-sm btn-success">Mark Completed</button>
                                     </form>
 
-                                    <form th:action="@{'/deadlines/' + ${deadline.id} + '/delete'}"
+                                    <form th:action="@{/deadlines/{id}/delete(id=${deadline.id})}"
                                           method="post"
                                           onsubmit="return confirm('Delete this deadline?');">
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
@@ -186,10 +146,6 @@
                             </div>
                         </li>
                     </ul>
-
-                    <a th:href="@{'/cases/' + ${legalCase.id} + '/deadlines/new'}" class="btn btn-sm btn-dark">
-                        Add Deadline
-                    </a>
                 </div>
             </div>
         </div>
@@ -197,24 +153,29 @@
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <h5>Notes</h5>
-
-                    <div th:if="${#lists.isEmpty(legalCase.notes)}">
-                        <p class="text-muted">No notes yet.</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Notes</h5>
+                        <a th:href="@{/cases/{id}/notes/new(id=${legalCase.id})}" class="btn btn-sm btn-dark">
+                            Add Note
+                        </a>
                     </div>
 
-                    <ul class="list-group list-group-flush mb-3" th:if="${!#lists.isEmpty(legalCase.notes)}">
+                    <div th:if="${legalCase.notes == null or legalCase.notes.empty}">
+                        <p class="text-muted mb-0">No notes yet.</p>
+                    </div>
+
+                    <ul class="list-group list-group-flush" th:if="${legalCase.notes != null and !legalCase.notes.empty}">
                         <li class="list-group-item px-0" th:each="note : ${legalCase.notes}">
                             <div class="d-flex justify-content-between align-items-start gap-2">
-                                <span th:text="${note.content}">Note text</span>
+                                <div th:text="${note.content}">Note content</div>
 
                                 <div class="d-flex flex-column gap-2">
-                                    <a th:href="@{'/notes/' + ${note.id} + '/edit'}"
-                                       class="btn btn-sm btn-outline-primary">
+                                    <a th:href="@{/notes/{id}/edit(id=${note.id})}" class="btn btn-sm btn-outline-primary">
                                         Edit
                                     </a>
 
-                                    <form th:action="@{'/notes/' + ${note.id} + '/delete'}" method="post"
+                                    <form th:action="@{/notes/{id}/delete(id=${note.id})}"
+                                          method="post"
                                           onsubmit="return confirm('Delete this note?');">
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                                     </form>
@@ -222,10 +183,6 @@
                             </div>
                         </li>
                     </ul>
-
-                    <a th:href="@{'/cases/' + ${legalCase.id} + '/notes/new'}" class="btn btn-sm btn-dark">
-                        Add Note
-                    </a>
                 </div>
             </div>
         </div>
