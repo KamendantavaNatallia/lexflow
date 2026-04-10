@@ -3,10 +3,10 @@ package com.lexflow.case_.service;
 import com.lexflow.case_.model.CaseStatus;
 import com.lexflow.case_.model.LegalCase;
 import com.lexflow.case_.repository.LegalCaseRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class LegalCaseService {
@@ -21,34 +21,16 @@ public class LegalCaseService {
         return legalCaseRepository.findAll();
     }
 
-    public List<LegalCase> searchCases(String keyword, String status) {
-        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
-        boolean hasStatus = status != null && !status.trim().isEmpty() && !"ALL".equalsIgnoreCase(status);
+    public LegalCase getCaseById(Long id) {
+        return legalCaseRepository.findById(id).orElse(null);
+    }
 
-        List<LegalCase> cases = legalCaseRepository.findAll();
+    public void saveCase(LegalCase legalCase) {
+        legalCaseRepository.save(legalCase);
+    }
 
-        if (hasStatus) {
-            try {
-                CaseStatus caseStatus = CaseStatus.valueOf(status.trim().toUpperCase());
-                cases = cases.stream()
-                        .filter(c -> c.getStatus() == caseStatus)
-                        .collect(Collectors.toList());
-            } catch (IllegalArgumentException ignored) {
-                cases = List.of();
-            }
-        }
-
-        if (hasKeyword) {
-            String lowerKeyword = keyword.trim().toLowerCase();
-            cases = cases.stream()
-                    .filter(c ->
-                            c.getTitle().toLowerCase().contains(lowerKeyword) ||
-                                    c.getClient().toLowerCase().contains(lowerKeyword)
-                    )
-                    .collect(Collectors.toList());
-        }
-
-        return cases;
+    public void deleteCase(Long id) {
+        legalCaseRepository.deleteById(id);
     }
 
     public long getTotalCasesCount() {
@@ -58,21 +40,51 @@ public class LegalCaseService {
     public long getOpenCasesCount() {
         return legalCaseRepository.findAll()
                 .stream()
-                .filter(c -> c.getStatus() == CaseStatus.OPEN)
+                .filter(legalCase -> legalCase.getStatus() == CaseStatus.OPEN)
                 .count();
     }
 
-    public LegalCase getCaseById(Long id) {
-        return legalCaseRepository.findById(id).orElse(null);
-    }
+    public List<LegalCase> searchCases(String keyword, String status, String sort) {
+        String normalizedKeyword = keyword == null ? "" : keyword.trim();
+        String normalizedStatus = (status == null || status.isBlank()) ? "ALL" : status;
+        String normalizedSort = (sort == null || sort.isBlank()) ? "newest" : sort;
 
-    public LegalCase saveCase(LegalCase legalCase) {
-        return legalCaseRepository.save(legalCase);
-    }
+        Sort sortOrder = buildSort(normalizedSort);
 
-    public void deleteCase(Long id) {
-        if (legalCaseRepository.existsById(id)) {
-            legalCaseRepository.deleteById(id);
+        boolean hasKeyword = !normalizedKeyword.isBlank();
+        boolean hasStatus = !"ALL".equalsIgnoreCase(normalizedStatus);
+
+        if (hasKeyword && hasStatus) {
+            return legalCaseRepository.findByStatusAndTitleContainingIgnoreCaseOrStatusAndClientContainingIgnoreCase(
+                    normalizedStatus, normalizedKeyword,
+                    normalizedStatus, normalizedKeyword,
+                    sortOrder
+            );
         }
+
+        if (hasKeyword) {
+            return legalCaseRepository.findByTitleContainingIgnoreCaseOrClientContainingIgnoreCase(
+                    normalizedKeyword, normalizedKeyword, sortOrder
+            );
+        }
+
+        if (hasStatus) {
+            return legalCaseRepository.findByStatus(normalizedStatus, sortOrder);
+        }
+
+        return legalCaseRepository.findAll(sortOrder);
+    }
+
+    public List<LegalCase> searchCases(String keyword, String status) {
+        return searchCases(keyword, status, "newest");
+    }
+
+    private Sort buildSort(String sort) {
+        return switch (sort) {
+            case "title_asc" -> Sort.by(Sort.Direction.ASC, "title");
+            case "status_asc" -> Sort.by(Sort.Direction.ASC, "status");
+            case "newest" -> Sort.by(Sort.Direction.DESC, "id");
+            default -> Sort.by(Sort.Direction.DESC, "id");
+        };
     }
 }

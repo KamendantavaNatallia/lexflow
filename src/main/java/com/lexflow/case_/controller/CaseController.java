@@ -25,10 +25,12 @@ public class CaseController {
     @GetMapping("/cases")
     public String cases(@RequestParam(required = false) String keyword,
                         @RequestParam(required = false, defaultValue = "ALL") String status,
+                        @RequestParam(required = false, defaultValue = "newest") String sort,
                         Model model) {
-        model.addAttribute("cases", legalCaseService.searchCases(keyword, status));
+        model.addAttribute("cases", legalCaseService.searchCases(keyword, status, sort));
         model.addAttribute("keyword", keyword == null ? "" : keyword);
         model.addAttribute("selectedStatus", status == null || status.isBlank() ? "ALL" : status);
+        model.addAttribute("selectedSort", sort == null || sort.isBlank() ? "newest" : sort);
         return "cases";
     }
 

@@ -38,7 +38,7 @@
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
       <form th:action="@{/cases}" method="get" class="row g-3 align-items-end">
-        <div class="col-md-6">
+        <div class="col-md-4">
           <label for="keyword" class="form-label">Search</label>
           <input type="text"
                  id="keyword"
@@ -48,7 +48,7 @@
                  th:value="${keyword}">
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label for="status" class="form-label">Status</label>
           <select id="status" name="status" class="form-select">
             <option value="ALL" th:selected="${selectedStatus == 'ALL'}">All</option>
@@ -59,8 +59,17 @@
           </select>
         </div>
 
+        <div class="col-md-3">
+          <label for="sort" class="form-label">Sort By</label>
+          <select id="sort" name="sort" class="form-select">
+            <option value="newest" th:selected="${selectedSort == 'newest'}">Newest</option>
+            <option value="title_asc" th:selected="${selectedSort == 'title_asc'}">Title A-Z</option>
+            <option value="status_asc" th:selected="${selectedSort == 'status_asc'}">Status</option>
+          </select>
+        </div>
+
         <div class="col-md-2 d-grid">
-          <button type="submit" class="btn btn-outline-dark">Filter</button>
+          <button type="submit" class="btn btn-outline-dark">Apply</button>
         </div>
       </form>
     </div>
