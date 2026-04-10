@@ -4,7 +4,6 @@ import com.lexflow.case_.model.LegalCase;
 import com.lexflow.case_.service.LegalCaseService;
 import com.lexflow.deadline.model.Deadline;
 import com.lexflow.deadline.service.DeadlineService;
-import com.lexflow.document.model.Document;
 import com.lexflow.document.service.DocumentService;
 import com.lexflow.note.model.Note;
 import com.lexflow.note.service.NoteService;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -76,6 +76,7 @@ public class CaseController {
         }
 
         model.addAttribute("legalCase", selectedCase);
+        model.addAttribute("documentService", documentService);
         return "case-details";
     }
 
@@ -341,15 +342,22 @@ public class CaseController {
         }
 
         if (file == null || file.isEmpty()) {
-            redirectAttributes.addFlashAttribute("successMessage", "Please select a file to upload.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Please select a file to upload.");
             return "redirect:/cases/" + id + "/documents/new";
         }
 
         try {
             documentService.addDocumentToCase(id, file);
             redirectAttributes.addFlashAttribute("successMessage", "Document uploaded successfully.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/cases/" + id + "/documents/new";
+        } catch (MaxUploadSizeExceededException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "File is too large. Maximum size is 10 MB.");
+            return "redirect:/cases/" + id + "/documents/new";
         } catch (IOException e) {
-            redirectAttributes.addFlashAttribute("successMessage", "Failed to upload document.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to upload document.");
+            return "redirect:/cases/" + id + "/documents/new";
         }
 
         return "redirect:/cases/" + id;

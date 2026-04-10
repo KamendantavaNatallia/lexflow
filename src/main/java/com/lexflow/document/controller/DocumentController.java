@@ -33,7 +33,7 @@ public class DocumentController {
         Path filePath = documentService.getDocumentPath(document);
         Resource resource = new UrlResource(filePath.toUri());
 
-        if (!resource.exists()) {
+        if (!resource.exists() || !resource.isReadable()) {
             return ResponseEntity.notFound().build();
         }
 

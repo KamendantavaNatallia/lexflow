@@ -9,14 +9,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class DocumentService {
+
+    private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "text/plain",
+            "image/png",
+            "image/jpeg"
+    );
 
     private final DocumentRepository documentRepository;
     private final LegalCaseService legalCaseService;
@@ -41,22 +49,31 @@ public class DocumentService {
         }
 
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("File is required");
+            throw new IllegalArgumentException("Please select a file to upload.");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            throw new IllegalArgumentException("File type is not allowed. Please upload PDF, DOC, DOCX, TXT, PNG, or JPG.");
         }
 
         Files.createDirectories(uploadPath);
 
         String originalFileName = file.getOriginalFilename();
-        String safeOriginalFileName = originalFileName != null ? originalFileName : "uploaded-file";
-        String storedFileName = UUID.randomUUID() + "_" + safeOriginalFileName;
+        if (originalFileName == null || originalFileName.isBlank()) {
+            originalFileName = "uploaded-file";
+        }
 
-        Path targetLocation = uploadPath.resolve(storedFileName);
-        Files.copy(file.getInputStream(), targetLocation);
+        String safeOriginalFileName = originalFileName.replaceAll("[^a-zA-Z0-9._-]", "_");
+        String storedFileName = UUID.randomUUID() + "_" + safeOriginalFileName;
+        Path targetLocation = uploadPath.resolve(storedFileName).normalize();
+
+        Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
         Document document = new Document();
-        document.setOriginalFileName(safeOriginalFileName);
+        document.setOriginalFileName(originalFileName);
         document.setStoredFileName(storedFileName);
-        document.setContentType(file.getContentType() != null ? file.getContentType() : "application/octet-stream");
+        document.setContentType(contentType);
         document.setFileSize(file.getSize());
         document.setLegalCase(legalCase);
 
@@ -82,5 +99,23 @@ public class DocumentService {
         }
 
         documentRepository.deleteById(id);
+    }
+
+    public String formatFileSize(Long sizeInBytes) {
+        if (sizeInBytes == null) {
+            return "Unknown size";
+        }
+
+        if (sizeInBytes < 1024) {
+            return sizeInBytes + " B";
+        }
+
+        double sizeInKb = sizeInBytes / 1024.0;
+        if (sizeInKb < 1024) {
+            return String.format("%.1f KB", sizeInKb);
+        }
+
+        double sizeInMb = sizeInKb / 1024.0;
+        return String.format("%.1f MB", sizeInMb);
     }
 }
