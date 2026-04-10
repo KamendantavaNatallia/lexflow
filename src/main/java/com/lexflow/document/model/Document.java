@@ -16,16 +16,20 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Document name is required")
+    @NotBlank(message = "Original file name is required")
     @Column(nullable = false)
-    private String fileName;
+    private String originalFileName;
 
-    @NotBlank(message = "Document type is required")
+    @NotBlank(message = "Stored file name is required")
+    @Column(nullable = false, unique = true)
+    private String storedFileName;
+
+    @NotBlank(message = "Content type is required")
     @Column(nullable = false)
-    private String fileType;
+    private String contentType;
 
-    @Column(columnDefinition = "TEXT")
-    private String content;
+    @Column(nullable = false)
+    private Long fileSize;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "case_id")

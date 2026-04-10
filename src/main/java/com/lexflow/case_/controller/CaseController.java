@@ -13,7 +13,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.io.IOException;
 
 @Controller
 public class CaseController {
@@ -325,43 +328,30 @@ public class CaseController {
         }
 
         model.addAttribute("legalCase", selectedCase);
-        model.addAttribute("document", new Document());
         return "document-form";
     }
 
     @PostMapping("/cases/{id}/documents")
     public String addDocument(@PathVariable Long id,
-                              @Valid @ModelAttribute Document document,
-                              BindingResult bindingResult,
-                              Model model,
+                              @RequestParam("file") MultipartFile file,
                               RedirectAttributes redirectAttributes) {
         LegalCase selectedCase = legalCaseService.getCaseById(id);
         if (selectedCase == null) {
             return "redirect:/cases";
         }
 
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("legalCase", selectedCase);
-            return "document-form";
+        if (file == null || file.isEmpty()) {
+            redirectAttributes.addFlashAttribute("successMessage", "Please select a file to upload.");
+            return "redirect:/cases/" + id + "/documents/new";
         }
 
-        documentService.addDocumentToCase(id, document);
-        redirectAttributes.addFlashAttribute("successMessage", "Document saved successfully.");
+        try {
+            documentService.addDocumentToCase(id, file);
+            redirectAttributes.addFlashAttribute("successMessage", "Document uploaded successfully.");
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("successMessage", "Failed to upload document.");
+        }
+
         return "redirect:/cases/" + id;
-    }
-
-    @PostMapping("/documents/{id}/delete")
-    public String deleteDocument(@PathVariable Long id,
-                                 RedirectAttributes redirectAttributes) {
-        Document document = documentService.getDocumentById(id);
-        if (document == null) {
-            return "redirect:/cases";
-        }
-
-        Long caseId = document.getLegalCase().getId();
-        documentService.deleteDocument(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Document deleted successfully.");
-
-        return "redirect:/cases/" + caseId;
     }
 }

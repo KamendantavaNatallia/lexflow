@@ -78,13 +78,14 @@
                         <li class="list-group-item px-0" th:each="document : ${legalCase.documents}">
                             <div class="d-flex justify-content-between align-items-start gap-2">
                                 <div>
-                                    <div class="fw-semibold" th:text="${document.fileName}">Document Name</div>
-                                    <div class="small text-muted" th:text="${document.fileType}">Document Type</div>
-                                    <div class="small mt-1"
-                                         th:if="${document.content != null and !document.content.isEmpty()}"
-                                         th:text="${document.content}">
-                                        Description
-                                    </div>
+                                    <div class="fw-semibold" th:text="${document.originalFileName}">file.pdf</div>
+                                    <div class="small text-muted" th:text="${document.contentType}">application/pdf</div>
+                                    <div class="small text-muted" th:text="${document.fileSize} + ' bytes'">12345 bytes</div>
+
+                                    <a th:href="@{/documents/{id}/download(id=${document.id})}"
+                                       class="btn btn-sm btn-outline-secondary mt-2">
+                                        Download
+                                    </a>
                                 </div>
 
                                 <form th:action="@{/documents/{id}/delete(id=${document.id})}"
