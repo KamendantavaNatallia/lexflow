@@ -38,6 +38,8 @@
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
       <form th:action="@{/cases}" method="get" class="row g-3 align-items-end">
+        <input type="hidden" name="page" value="0">
+
         <div class="col-md-4">
           <label for="keyword" class="form-label">Search</label>
           <input type="text"
@@ -131,22 +133,34 @@
         </table>
       </div>
 
-      <div th:if="${casesPage != null and totalPages > 1}" class="d-flex justify-content-between align-items-center mt-4">
-        <a class="btn btn-outline-secondary"
-           th:classappend="${!casesPage.hasPrevious()} ? ' disabled' : ''"
-           th:href="${casesPage.hasPrevious()} ? @{/cases(page=${currentPage - 1}, keyword=${keyword}, status=${selectedStatus}, sort=${selectedSort})} : '#'">
-          Previous
-        </a>
+      <div th:if="${casesPage != null and totalPages > 1}" class="d-flex flex-column gap-3 mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <a class="btn btn-outline-secondary"
+             th:classappend="${!casesPage.hasPrevious()} ? ' disabled' : ''"
+             th:href="${casesPage.hasPrevious()} ? @{/cases(page=${currentPage - 1}, keyword=${keyword}, status=${selectedStatus}, sort=${selectedSort})} : '#'">
+            Previous
+          </a>
 
-        <span class="text-muted">
-                    Page <span th:text="${currentPage + 1}">1</span> of <span th:text="${totalPages}">1</span>
-                </span>
+          <span class="text-muted">
+                        Page <span th:text="${currentPage + 1}">1</span> of <span th:text="${totalPages}">1</span>
+                    </span>
 
-        <a class="btn btn-outline-secondary"
-           th:classappend="${!casesPage.hasNext()} ? ' disabled' : ''"
-           th:href="${casesPage.hasNext()} ? @{/cases(page=${currentPage + 1}, keyword=${keyword}, status=${selectedStatus}, sort=${selectedSort})} : '#'">
-          Next
-        </a>
+          <a class="btn btn-outline-secondary"
+             th:classappend="${!casesPage.hasNext()} ? ' disabled' : ''"
+             th:href="${casesPage.hasNext()} ? @{/cases(page=${currentPage + 1}, keyword=${keyword}, status=${selectedStatus}, sort=${selectedSort})} : '#'">
+            Next
+          </a>
+        </div>
+
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+          <a th:each="pageNumber : ${#numbers.sequence(0, totalPages - 1)}"
+             th:href="@{/cases(page=${pageNumber}, keyword=${keyword}, status=${selectedStatus}, sort=${selectedSort})}"
+             class="btn btn-sm"
+             th:classappend="${pageNumber == currentPage} ? 'btn-dark' : 'btn-outline-secondary'"
+             th:text="${pageNumber + 1}">
+            1
+          </a>
+        </div>
       </div>
     </div>
   </div>
