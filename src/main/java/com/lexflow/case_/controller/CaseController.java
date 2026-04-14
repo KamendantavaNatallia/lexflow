@@ -4,6 +4,7 @@ import com.lexflow.case_.model.LegalCase;
 import com.lexflow.case_.service.LegalCaseService;
 import com.lexflow.document.service.DocumentService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,11 +27,20 @@ public class CaseController {
     public String cases(@RequestParam(required = false) String keyword,
                         @RequestParam(required = false, defaultValue = "ALL") String status,
                         @RequestParam(required = false, defaultValue = "newest") String sort,
+                        @RequestParam(required = false, defaultValue = "0") int page,
                         Model model) {
-        model.addAttribute("cases", legalCaseService.searchCases(keyword, status, sort));
+
+        int pageSize = 5;
+        Page<LegalCase> casesPage = legalCaseService.searchCases(keyword, status, sort, page, pageSize);
+
+        model.addAttribute("casesPage", casesPage);
+        model.addAttribute("cases", casesPage.getContent());
         model.addAttribute("keyword", keyword == null ? "" : keyword);
         model.addAttribute("selectedStatus", status == null || status.isBlank() ? "ALL" : status);
         model.addAttribute("selectedSort", sort == null || sort.isBlank() ? "newest" : sort);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", casesPage.getTotalPages());
+
         return "cases";
     }
 

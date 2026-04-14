@@ -124,6 +124,24 @@
           </tbody>
         </table>
       </div>
+
+      <div th:if="${casesPage != null and totalPages > 1}" class="d-flex justify-content-between align-items-center mt-4">
+        <a class="btn btn-outline-secondary"
+           th:classappend="${!casesPage.hasPrevious()} ? ' disabled' : ''"
+           th:href="${casesPage.hasPrevious()} ? @{/cases(page=${currentPage - 1}, keyword=${keyword}, status=${selectedStatus}, sort=${selectedSort})} : '#'">
+          Previous
+        </a>
+
+        <span class="text-muted">
+                    Page <span th:text="${currentPage + 1}">1</span> of <span th:text="${totalPages}">1</span>
+                </span>
+
+        <a class="btn btn-outline-secondary"
+           th:classappend="${!casesPage.hasNext()} ? ' disabled' : ''"
+           th:href="${casesPage.hasNext()} ? @{/cases(page=${currentPage + 1}, keyword=${keyword}, status=${selectedStatus}, sort=${selectedSort})} : '#'">
+          Next
+        </a>
+      </div>
     </div>
   </div>
 </div>

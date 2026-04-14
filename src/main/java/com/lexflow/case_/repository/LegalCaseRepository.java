@@ -1,20 +1,22 @@
 package com.lexflow.case_.repository;
 
+import com.lexflow.case_.model.CaseStatus;
 import com.lexflow.case_.model.LegalCase;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
 
 public interface LegalCaseRepository extends JpaRepository<LegalCase, Long> {
 
-    List<LegalCase> findByTitleContainingIgnoreCaseOrClientContainingIgnoreCase(String title, String client, Sort sort);
+    Page<LegalCase> findByTitleContainingIgnoreCaseOrClientContainingIgnoreCase(
+            String title, String client, Pageable pageable
+    );
 
-    List<LegalCase> findByStatus(String status, Sort sort);
+    Page<LegalCase> findByStatus(CaseStatus status, Pageable pageable);
 
-    List<LegalCase> findByStatusAndTitleContainingIgnoreCaseOrStatusAndClientContainingIgnoreCase(
-            String status1, String title,
-            String status2, String client,
-            Sort sort
+    Page<LegalCase> findByStatusAndTitleContainingIgnoreCaseOrStatusAndClientContainingIgnoreCase(
+            CaseStatus status1, String title,
+            CaseStatus status2, String client,
+            Pageable pageable
     );
 }

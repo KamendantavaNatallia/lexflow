@@ -3,6 +3,9 @@ package com.lexflow.case_.service;
 import com.lexflow.case_.model.CaseStatus;
 import com.lexflow.case_.model.LegalCase;
 import com.lexflow.case_.repository.LegalCaseRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -44,39 +47,37 @@ public class LegalCaseService {
                 .count();
     }
 
-    public List<LegalCase> searchCases(String keyword, String status, String sort) {
+    public Page<LegalCase> searchCases(String keyword, String status, String sort, int page, int size) {
         String normalizedKeyword = keyword == null ? "" : keyword.trim();
         String normalizedStatus = (status == null || status.isBlank()) ? "ALL" : status;
         String normalizedSort = (sort == null || sort.isBlank()) ? "newest" : sort;
 
-        Sort sortOrder = buildSort(normalizedSort);
+        Pageable pageable = PageRequest.of(page, size, buildSort(normalizedSort));
 
         boolean hasKeyword = !normalizedKeyword.isBlank();
         boolean hasStatus = !"ALL".equalsIgnoreCase(normalizedStatus);
 
         if (hasKeyword && hasStatus) {
+            CaseStatus caseStatus = CaseStatus.valueOf(normalizedStatus.toUpperCase());
             return legalCaseRepository.findByStatusAndTitleContainingIgnoreCaseOrStatusAndClientContainingIgnoreCase(
-                    normalizedStatus, normalizedKeyword,
-                    normalizedStatus, normalizedKeyword,
-                    sortOrder
+                    caseStatus, normalizedKeyword,
+                    caseStatus, normalizedKeyword,
+                    pageable
             );
         }
 
         if (hasKeyword) {
             return legalCaseRepository.findByTitleContainingIgnoreCaseOrClientContainingIgnoreCase(
-                    normalizedKeyword, normalizedKeyword, sortOrder
+                    normalizedKeyword, normalizedKeyword, pageable
             );
         }
 
         if (hasStatus) {
-            return legalCaseRepository.findByStatus(normalizedStatus, sortOrder);
+            CaseStatus caseStatus = CaseStatus.valueOf(normalizedStatus.toUpperCase());
+            return legalCaseRepository.findByStatus(caseStatus, pageable);
         }
 
-        return legalCaseRepository.findAll(sortOrder);
-    }
-
-    public List<LegalCase> searchCases(String keyword, String status) {
-        return searchCases(keyword, status, "newest");
+        return legalCaseRepository.findAll(pageable);
     }
 
     private Sort buildSort(String sort) {

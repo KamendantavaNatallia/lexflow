@@ -53,7 +53,17 @@
 
                 <div class="mb-3">
                     <label for="type" class="form-label">Case Type</label>
-                    <input type="text" id="type" class="form-control" th:field="*{type}">
+                    <select id="type" class="form-select" th:field="*{type}">
+                        <option value="">Select case type</option>
+                        <option value="CONTRACT">CONTRACT</option>
+                        <option value="LITIGATION">LITIGATION</option>
+                        <option value="COMPLIANCE">COMPLIANCE</option>
+                        <option value="CORPORATE">CORPORATE</option>
+                        <option value="EMPLOYMENT">EMPLOYMENT</option>
+                        <option value="IP">IP</option>
+                        <option value="REAL_ESTATE">REAL_ESTATE</option>
+                        <option value="OTHER">OTHER</option>
+                    </select>
                     <div class="text-danger small mt-1"
                          th:if="${#fields.hasErrors('type')}"
                          th:errors="*{type}">
