@@ -40,7 +40,7 @@
       <form th:action="@{/cases}" method="get" class="row g-3 align-items-end">
         <input type="hidden" name="page" value="0">
 
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label for="keyword" class="form-label">Search</label>
           <input type="text"
                  id="keyword"
@@ -61,12 +61,21 @@
           </select>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-2">
           <label for="sort" class="form-label">Sort By</label>
           <select id="sort" name="sort" class="form-select">
             <option value="newest" th:selected="${selectedSort == 'newest'}">Newest</option>
             <option value="title_asc" th:selected="${selectedSort == 'title_asc'}">Title A-Z</option>
             <option value="status_asc" th:selected="${selectedSort == 'status_asc'}">Status</option>
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label for="size" class="form-label">Per Page</label>
+          <select id="size" name="size" class="form-select">
+            <option value="5" th:selected="${selectedSize == 5}">5</option>
+            <option value="10" th:selected="${selectedSize == 10}">10</option>
+            <option value="20" th:selected="${selectedSize == 20}">20</option>
           </select>
         </div>
 
@@ -137,7 +146,7 @@
         <div class="d-flex justify-content-between align-items-center">
           <a class="btn btn-outline-secondary"
              th:classappend="${!casesPage.hasPrevious()} ? ' disabled' : ''"
-             th:href="${casesPage.hasPrevious()} ? @{/cases(page=${currentPage - 1}, keyword=${keyword}, status=${selectedStatus}, sort=${selectedSort})} : '#'">
+             th:href="${casesPage.hasPrevious()} ? @{/cases(page=${currentPage - 1}, keyword=${keyword}, status=${selectedStatus}, sort=${selectedSort}, size=${selectedSize})} : '#'">
             Previous
           </a>
 
@@ -147,14 +156,14 @@
 
           <a class="btn btn-outline-secondary"
              th:classappend="${!casesPage.hasNext()} ? ' disabled' : ''"
-             th:href="${casesPage.hasNext()} ? @{/cases(page=${currentPage + 1}, keyword=${keyword}, status=${selectedStatus}, sort=${selectedSort})} : '#'">
+             th:href="${casesPage.hasNext()} ? @{/cases(page=${currentPage + 1}, keyword=${keyword}, status=${selectedStatus}, sort=${selectedSort}, size=${selectedSize})} : '#'">
             Next
           </a>
         </div>
 
         <div class="d-flex justify-content-center gap-2 flex-wrap">
           <a th:each="pageNumber : ${#numbers.sequence(0, totalPages - 1)}"
-             th:href="@{/cases(page=${pageNumber}, keyword=${keyword}, status=${selectedStatus}, sort=${selectedSort})}"
+             th:href="@{/cases(page=${pageNumber}, keyword=${keyword}, status=${selectedStatus}, sort=${selectedSort}, size=${selectedSize})}"
              class="btn btn-sm"
              th:classappend="${pageNumber == currentPage} ? 'btn-dark' : 'btn-outline-secondary'"
              th:text="${pageNumber + 1}">

@@ -1,7 +1,7 @@
-package com.lexflow.case_.controller;
+package com.lexflow.home.controller;
 
-import com.lexflow.deadline.service.DeadlineService;
 import com.lexflow.case_.service.LegalCaseService;
+import com.lexflow.deadline.service.DeadlineService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,12 +20,12 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model) {
-        model.addAttribute("appName", "LexFlow");
-        model.addAttribute("message", "Your Legal Deadline Tracker is running successfully.");
         model.addAttribute("totalCases", legalCaseService.getTotalCasesCount());
         model.addAttribute("openCases", legalCaseService.getOpenCasesCount());
-        model.addAttribute("overdueDeadlines", deadlineService.getOverdueCount());
-        model.addAttribute("upcomingDeadlines", deadlineService.getUpcomingCount());
+        model.addAttribute("overdueDeadlines", deadlineService.getOverdueDeadlines().size());
+        model.addAttribute("upcomingDeadlines", deadlineService.getUpcomingDeadlines().size());
+        model.addAttribute("recentCases", legalCaseService.getRecentCases(5));
+        model.addAttribute("legalCaseService", legalCaseService);
 
         return "index";
     }

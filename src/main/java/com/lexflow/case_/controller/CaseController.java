@@ -28,9 +28,14 @@ public class CaseController {
                         @RequestParam(required = false, defaultValue = "ALL") String status,
                         @RequestParam(required = false, defaultValue = "newest") String sort,
                         @RequestParam(required = false, defaultValue = "0") int page,
+                        @RequestParam(required = false, defaultValue = "5") int size,
                         Model model) {
 
-        int pageSize = 5;
+        int pageSize = switch (size) {
+            case 10, 20 -> size;
+            default -> 5;
+        };
+
         Page<LegalCase> casesPage = legalCaseService.searchCases(keyword, status, sort, page, pageSize);
 
         model.addAttribute("casesPage", casesPage);
@@ -38,6 +43,7 @@ public class CaseController {
         model.addAttribute("keyword", keyword == null ? "" : keyword);
         model.addAttribute("selectedStatus", status == null || status.isBlank() ? "ALL" : status);
         model.addAttribute("selectedSort", sort == null || sort.isBlank() ? "newest" : sort);
+        model.addAttribute("selectedSize", pageSize);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", casesPage.getTotalPages());
 

@@ -48,6 +48,13 @@ public class LegalCaseService {
                 .count();
     }
 
+    public List<LegalCase> getRecentCases(int limit) {
+        return legalCaseRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
+                .stream()
+                .limit(limit)
+                .toList();
+    }
+
     public Page<LegalCase> searchCases(String keyword, String status, String sort, int page, int size) {
         String normalizedKeyword = keyword == null ? "" : keyword.trim();
         String normalizedStatus = (status == null || status.isBlank()) ? "ALL" : status;
