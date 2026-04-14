@@ -1,6 +1,7 @@
 package com.lexflow.case_.service;
 
 import com.lexflow.case_.model.CaseStatus;
+import com.lexflow.case_.model.CaseType;
 import com.lexflow.case_.model.LegalCase;
 import com.lexflow.case_.repository.LegalCaseRepository;
 import org.springframework.data.domain.Page;
@@ -86,6 +87,46 @@ public class LegalCaseService {
             case "status_asc" -> Sort.by(Sort.Direction.ASC, "status");
             case "newest" -> Sort.by(Sort.Direction.DESC, "id");
             default -> Sort.by(Sort.Direction.DESC, "id");
+        };
+    }
+
+    public String getFriendlyStatus(CaseStatus status) {
+        if (status == null) {
+            return "Unknown";
+        }
+
+        return switch (status) {
+            case OPEN -> "Open";
+            case IN_PROGRESS -> "In Progress";
+            case ON_HOLD -> "On Hold";
+            case CLOSED -> "Closed";
+        };
+    }
+
+    public String getFriendlyType(CaseType type) {
+        if (type == null) {
+            return "Unknown";
+        }
+
+        return switch (type) {
+            case CONTRACT -> "Contract";
+            case COMPLIANCE -> "Compliance";
+            case LITIGATION -> "Litigation";
+            case CORPORATE -> "Corporate";
+            case OTHER -> "Other";
+        };
+    }
+
+    public String getStatusBadgeClass(CaseStatus status) {
+        if (status == null) {
+            return "bg-secondary";
+        }
+
+        return switch (status) {
+            case OPEN -> "bg-primary";
+            case IN_PROGRESS -> "bg-warning text-dark";
+            case ON_HOLD -> "bg-secondary";
+            case CLOSED -> "bg-success";
         };
     }
 }

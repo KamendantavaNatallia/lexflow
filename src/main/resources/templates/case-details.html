@@ -43,11 +43,15 @@
                 </p>
                 <p class="mb-1">
                     <strong>Type:</strong>
-                    <span th:text="${legalCase.type}">Type</span>
+                    <span th:text="${@legalCaseService.getFriendlyType(legalCase.type)}">Case Type</span>
                 </p>
                 <p class="mb-0">
                     <strong>Status:</strong>
-                    <span th:text="${legalCase.status}">Status</span>
+                    <span class="badge rounded-pill"
+                          th:text="${@legalCaseService.getFriendlyStatus(legalCase.status)}"
+                          th:classappend="' ' + ${@legalCaseService.getStatusBadgeClass(legalCase.status)}">
+                        Status
+                    </span>
                 </p>
             </div>
 

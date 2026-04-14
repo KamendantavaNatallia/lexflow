@@ -102,8 +102,14 @@
               </a>
             </td>
             <td th:text="${legalCase.client}">Client Name</td>
-            <td th:text="${legalCase.type}">Type</td>
-            <td th:text="${legalCase.status}">Status</td>
+            <td th:text="${@legalCaseService.getFriendlyType(legalCase.type)}">Case Type</td>
+            <td>
+                            <span class="badge rounded-pill"
+                                  th:text="${@legalCaseService.getFriendlyStatus(legalCase.status)}"
+                                  th:classappend="' ' + ${@legalCaseService.getStatusBadgeClass(legalCase.status)}">
+                                Status
+                            </span>
+            </td>
             <td class="text-end">
               <div class="d-inline-flex gap-2">
                 <a th:href="@{/cases/{id}(id=${legalCase.id})}" class="btn btn-sm btn-outline-secondary">
