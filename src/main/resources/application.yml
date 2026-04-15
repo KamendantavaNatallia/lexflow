@@ -1,11 +1,9 @@
 spring:
-  application:
-    name: lexflow
-
   datasource:
     url: jdbc:postgresql://localhost:5432/lexflow_db
-    username: postgres
-    password: postgres
+    username: natalliashautsova
+    password:
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
@@ -15,10 +13,16 @@ spring:
       hibernate:
         format_sql: true
 
+  thymeleaf:
+    cache: false
+
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+
+server:
+  port: 8080
 
 app:
   upload-dir: uploads/documents

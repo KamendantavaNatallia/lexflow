@@ -1,4 +1,4 @@
-package com.lexflow.home.controller;
+package com.lexflow.case_.controller;
 
 import com.lexflow.case_.service.LegalCaseService;
 import com.lexflow.deadline.service.DeadlineService;
