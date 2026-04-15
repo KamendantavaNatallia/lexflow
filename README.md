@@ -2,7 +2,7 @@
 
 LexFlow is a legal case management application built with Java and Spring Boot.
 
-It was created as a portfolio project to demonstrate backend engineering skills through a realistic legal-tech domain: case management, deadline tracking, notes, and document workflows.
+It was created as a portfolio project to demonstrate backend engineering skills through a realistic legal-tech domain: case management, deadline tracking, notes, document workflows, and layered Spring architecture.
 
 ## Why this project
 
@@ -69,10 +69,14 @@ The goal of the project is not only to build a functional application, but also 
 - Thymeleaf
 - Bootstrap 5
 - Maven
+- JUnit 5
+- Mockito
+- MockMvc
+- H2 (for repository tests)
 
-## Architecture
+## Project Structure
 
-The project is organized by feature modules:
+### Main source set
 
 ```text
 src/main/java/com/lexflow
