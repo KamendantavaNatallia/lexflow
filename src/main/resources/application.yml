@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/lexflow_db
-    username: natalliashautsova
-    password:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/lexflow_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -25,4 +25,4 @@ server:
   port: 8080
 
 app:
-  upload-dir: uploads/documents
+  upload-dir: ${UPLOAD_DIR:uploads/documents}
