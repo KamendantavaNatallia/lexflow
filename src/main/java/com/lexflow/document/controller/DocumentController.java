@@ -2,15 +2,12 @@ package com.lexflow.document.controller;
 
 import com.lexflow.document.model.Document;
 import com.lexflow.document.service.DocumentService;
-import jakarta.servlet.ServletException;
-import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -33,16 +30,9 @@ public class DocumentController {
     @PostMapping("/upload")
     public String uploadDocument(@RequestParam("caseId") Long caseId,
                                  @RequestParam("file") MultipartFile file,
-                                 RedirectAttributes redirectAttributes) {
-        try {
-            documentService.saveDocument(caseId, file);
-            redirectAttributes.addFlashAttribute("successMessage", "Document uploaded successfully.");
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-        } catch (IOException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Failed to upload document.");
-        }
-
+                                 RedirectAttributes redirectAttributes) throws IOException {
+        documentService.saveDocument(caseId, file);
+        redirectAttributes.addFlashAttribute("successMessage", "Document uploaded successfully.");
         return "redirect:/cases/" + caseId;
     }
 
@@ -71,44 +61,20 @@ public class DocumentController {
     }
 
     @PostMapping("/delete/{id}")
-    public String deleteDocument(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        try {
-            Optional<Document> optionalDocument = documentService.getDocumentById(id);
+    public String deleteDocument(@PathVariable Long id, RedirectAttributes redirectAttributes) throws IOException {
+        Optional<Document> optionalDocument = documentService.getDocumentById(id);
 
-            if (optionalDocument.isEmpty()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Document not found.");
-                return "redirect:/cases";
-            }
-
-            Document document = optionalDocument.get();
-            Long caseId = document.getLegalCase().getId();
-
-            documentService.deleteDocument(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Document deleted successfully.");
-
-            return "redirect:/cases/" + caseId;
-        } catch (IOException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete document.");
-            return "redirect:/cases";
-        }
-    }
-
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public String handleMaxSizeException(RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("errorMessage", "File is too large.");
-        return "redirect:/cases";
-    }
-
-    @ExceptionHandler(ServletException.class)
-    public String handleServletException(ServletException e, RedirectAttributes redirectAttributes) {
-        Throwable rootCause = e.getRootCause();
-
-        if (rootCause instanceof SizeLimitExceededException) {
-            redirectAttributes.addFlashAttribute("errorMessage", "File is too large.");
+        if (optionalDocument.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Document not found.");
             return "redirect:/cases";
         }
 
-        redirectAttributes.addFlashAttribute("errorMessage", "Upload failed.");
-        return "redirect:/cases";
+        Document document = optionalDocument.get();
+        Long caseId = document.getLegalCase().getId();
+
+        documentService.deleteDocument(id);
+        redirectAttributes.addFlashAttribute("successMessage", "Document deleted successfully.");
+
+        return "redirect:/cases/" + caseId;
     }
 }
