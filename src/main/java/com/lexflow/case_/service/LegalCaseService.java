@@ -42,23 +42,18 @@ public class LegalCaseService {
     }
 
     public long getOpenCasesCount() {
-        return legalCaseRepository.findAll()
-                .stream()
-                .filter(legalCase -> legalCase.getStatus() == CaseStatus.OPEN)
-                .count();
+        return legalCaseRepository.countByStatus(CaseStatus.OPEN);
     }
 
     public List<LegalCase> getRecentCases(int limit) {
-        return legalCaseRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
-                .stream()
-                .limit(limit)
-                .toList();
+        Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "id"));
+        return legalCaseRepository.findAll(pageable).getContent();
     }
 
     public Page<LegalCase> searchCases(String keyword, String status, String sort, int page, int size) {
         String normalizedKeyword = keyword == null ? "" : keyword.trim();
-        String normalizedStatus = (status == null || status.isBlank()) ? "ALL" : status;
-        String normalizedSort = (sort == null || sort.isBlank()) ? "newest" : sort;
+        String normalizedStatus = (status == null || status.isBlank()) ? "ALL" : status.trim();
+        String normalizedSort = (sort == null || sort.isBlank()) ? "newest" : sort.trim();
 
         Pageable pageable = PageRequest.of(page, size, buildSort(normalizedSort));
 
@@ -67,11 +62,7 @@ public class LegalCaseService {
 
         if (hasKeyword && hasStatus) {
             CaseStatus caseStatus = CaseStatus.valueOf(normalizedStatus.toUpperCase());
-            return legalCaseRepository.findByStatusAndTitleContainingIgnoreCaseOrStatusAndClientContainingIgnoreCase(
-                    caseStatus, normalizedKeyword,
-                    caseStatus, normalizedKeyword,
-                    pageable
-            );
+            return legalCaseRepository.searchByStatusAndKeyword(caseStatus, normalizedKeyword, pageable);
         }
 
         if (hasKeyword) {
