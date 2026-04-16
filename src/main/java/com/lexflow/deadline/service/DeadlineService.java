@@ -1,9 +1,9 @@
 package com.lexflow.deadline.service;
 
 import com.lexflow.case_.model.LegalCase;
+import com.lexflow.case_.repository.LegalCaseRepository;
 import com.lexflow.deadline.model.Deadline;
 import com.lexflow.deadline.repository.DeadlineRepository;
-import com.lexflow.case_.repository.LegalCaseRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -29,10 +29,8 @@ public class DeadlineService {
 
         deadline.setLegalCase(legalCase);
         deadline.setCompleted(false);
-        legalCase.getDeadlines().add(deadline);
-        legalCaseRepository.save(legalCase);
 
-        return deadline;
+        return deadlineRepository.save(deadline);
     }
 
     public Deadline saveDeadline(Deadline deadline) {
@@ -48,11 +46,11 @@ public class DeadlineService {
     }
 
     public long getOverdueCount() {
-        return getOverdueDeadlines().size();
+        return deadlineRepository.countByDueDateBeforeAndCompletedFalse(LocalDate.now());
     }
 
     public long getUpcomingCount() {
-        return getUpcomingDeadlines().size();
+        return deadlineRepository.countByDueDateGreaterThanEqualAndCompletedFalse(LocalDate.now());
     }
 
     public Deadline getDeadlineById(Long id) {
