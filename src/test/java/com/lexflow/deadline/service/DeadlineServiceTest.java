@@ -11,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,30 +39,31 @@ class DeadlineServiceTest {
 
         assertNull(result);
         verify(legalCaseRepository).findById(1L);
+        verify(deadlineRepository, never()).save(any());
         verify(legalCaseRepository, never()).save(any());
     }
 
     @Test
     void addDeadlineToCase_shouldAttachDeadlineToCaseAndSave() {
         LegalCase legalCase = new LegalCase();
-        legalCase.setDeadlines(new ArrayList<>());
 
         Deadline deadline = new Deadline();
         deadline.setTitle("Submit filing");
         deadline.setDueDate(LocalDate.now().plusDays(3));
 
         when(legalCaseRepository.findById(1L)).thenReturn(Optional.of(legalCase));
+        when(deadlineRepository.save(deadline)).thenReturn(deadline);
 
         Deadline result = deadlineService.addDeadlineToCase(1L, deadline);
 
         assertNotNull(result);
+        assertEquals(deadline, result);
         assertEquals(legalCase, deadline.getLegalCase());
         assertFalse(deadline.isCompleted());
-        assertEquals(1, legalCase.getDeadlines().size());
-        assertEquals(deadline, legalCase.getDeadlines().get(0));
 
         verify(legalCaseRepository).findById(1L);
-        verify(legalCaseRepository).save(legalCase);
+        verify(deadlineRepository).save(deadline);
+        verify(legalCaseRepository, never()).save(any());
     }
 
     @Test
@@ -114,29 +114,25 @@ class DeadlineServiceTest {
     }
 
     @Test
-    void getOverdueCount_shouldReturnSizeOfOverdueDeadlines() {
-        List<Deadline> overdue = List.of(new Deadline(), new Deadline());
-
-        when(deadlineRepository.findByDueDateBeforeAndCompletedFalse(LocalDate.now()))
-                .thenReturn(overdue);
+    void getOverdueCount_shouldReturnRepositoryCount() {
+        when(deadlineRepository.countByDueDateBeforeAndCompletedFalse(LocalDate.now()))
+                .thenReturn(2L);
 
         long result = deadlineService.getOverdueCount();
 
         assertEquals(2L, result);
-        verify(deadlineRepository).findByDueDateBeforeAndCompletedFalse(LocalDate.now());
+        verify(deadlineRepository).countByDueDateBeforeAndCompletedFalse(LocalDate.now());
     }
 
     @Test
-    void getUpcomingCount_shouldReturnSizeOfUpcomingDeadlines() {
-        List<Deadline> upcoming = List.of(new Deadline(), new Deadline(), new Deadline());
-
-        when(deadlineRepository.findByDueDateGreaterThanEqualAndCompletedFalse(LocalDate.now()))
-                .thenReturn(upcoming);
+    void getUpcomingCount_shouldReturnRepositoryCount() {
+        when(deadlineRepository.countByDueDateGreaterThanEqualAndCompletedFalse(LocalDate.now()))
+                .thenReturn(3L);
 
         long result = deadlineService.getUpcomingCount();
 
         assertEquals(3L, result);
-        verify(deadlineRepository).findByDueDateGreaterThanEqualAndCompletedFalse(LocalDate.now());
+        verify(deadlineRepository).countByDueDateGreaterThanEqualAndCompletedFalse(LocalDate.now());
     }
 
     @Test

@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,29 +38,29 @@ class NoteServiceTest {
 
         assertNull(result);
         verify(legalCaseRepository).findById(1L);
+        verify(noteRepository, never()).save(any());
         verify(legalCaseRepository, never()).save(any());
     }
 
     @Test
     void addNoteToCase_shouldAttachNoteToCaseAndSave_whenCaseExists() {
         LegalCase legalCase = new LegalCase();
-        legalCase.setNotes(new ArrayList<>());
 
         Note note = new Note();
         note.setContent("Important note");
 
         when(legalCaseRepository.findById(1L)).thenReturn(Optional.of(legalCase));
+        when(noteRepository.save(note)).thenReturn(note);
 
         Note result = noteService.addNoteToCase(1L, note);
 
         assertNotNull(result);
         assertEquals(note, result);
         assertEquals(legalCase, note.getLegalCase());
-        assertEquals(1, legalCase.getNotes().size());
-        assertEquals(note, legalCase.getNotes().get(0));
 
         verify(legalCaseRepository).findById(1L);
-        verify(legalCaseRepository).save(legalCase);
+        verify(noteRepository).save(note);
+        verify(legalCaseRepository, never()).save(any());
     }
 
     @Test
