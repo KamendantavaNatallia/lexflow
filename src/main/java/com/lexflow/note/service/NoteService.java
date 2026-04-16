@@ -1,8 +1,8 @@
 package com.lexflow.note.service;
 
 import com.lexflow.case_.model.LegalCase;
-import com.lexflow.note.model.Note;
 import com.lexflow.case_.repository.LegalCaseRepository;
+import com.lexflow.note.model.Note;
 import com.lexflow.note.repository.NoteRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +25,7 @@ public class NoteService {
         }
 
         note.setLegalCase(legalCase);
-        legalCase.getNotes().add(note);
-        legalCaseRepository.save(legalCase);
-
-        return note;
+        return noteRepository.save(note);
     }
 
     public Note saveNote(Note note) {
