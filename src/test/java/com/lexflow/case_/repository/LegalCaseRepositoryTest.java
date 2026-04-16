@@ -73,7 +73,36 @@ class LegalCaseRepositoryTest {
     }
 
     @Test
-    void findByStatusAndTitleContainingIgnoreCaseOrStatusAndClientContainingIgnoreCase_shouldMatchStatusAndKeyword() {
+    void countByStatus_shouldReturnCorrectCount() {
+        LegalCase openCase1 = new LegalCase();
+        openCase1.setTitle("Open Case 1");
+        openCase1.setClient("Client A");
+        openCase1.setType(CaseType.CONTRACT);
+        openCase1.setStatus(CaseStatus.OPEN);
+
+        LegalCase openCase2 = new LegalCase();
+        openCase2.setTitle("Open Case 2");
+        openCase2.setClient("Client B");
+        openCase2.setType(CaseType.CORPORATE);
+        openCase2.setStatus(CaseStatus.OPEN);
+
+        LegalCase closedCase = new LegalCase();
+        closedCase.setTitle("Closed Case");
+        closedCase.setClient("Client C");
+        closedCase.setType(CaseType.LITIGATION);
+        closedCase.setStatus(CaseStatus.CLOSED);
+
+        legalCaseRepository.save(openCase1);
+        legalCaseRepository.save(openCase2);
+        legalCaseRepository.save(closedCase);
+
+        long result = legalCaseRepository.countByStatus(CaseStatus.OPEN);
+
+        assertEquals(2L, result);
+    }
+
+    @Test
+    void searchByStatusAndKeyword_shouldMatchStatusAndKeyword() {
         LegalCase matchingCase = new LegalCase();
         matchingCase.setTitle("Corporate Contract");
         matchingCase.setClient("Acme Corp");
@@ -82,7 +111,7 @@ class LegalCaseRepositoryTest {
 
         LegalCase wrongStatusCase = new LegalCase();
         wrongStatusCase.setTitle("Corporate Contract");
-        wrongStatusCase.setClient("Other Client");
+        wrongStatusCase.setClient("Acme Corp");
         wrongStatusCase.setType(CaseType.CORPORATE);
         wrongStatusCase.setStatus(CaseStatus.CLOSED);
 
@@ -96,12 +125,11 @@ class LegalCaseRepositoryTest {
         legalCaseRepository.save(wrongStatusCase);
         legalCaseRepository.save(wrongKeywordCase);
 
-        Page<LegalCase> result = legalCaseRepository
-                .findByStatusAndTitleContainingIgnoreCaseOrStatusAndClientContainingIgnoreCase(
-                        CaseStatus.OPEN, "Acme",
-                        CaseStatus.OPEN, "Acme",
-                        PageRequest.of(0, 10)
-                );
+        Page<LegalCase> result = legalCaseRepository.searchByStatusAndKeyword(
+                CaseStatus.OPEN,
+                "Acme",
+                PageRequest.of(0, 10)
+        );
 
         assertEquals(1, result.getTotalElements());
         assertEquals("Corporate Contract", result.getContent().get(0).getTitle());

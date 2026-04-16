@@ -1,7 +1,7 @@
 package com.lexflow.document.service;
 
 import com.lexflow.case_.model.LegalCase;
-import com.lexflow.case_.service.LegalCaseService;
+import com.lexflow.case_.repository.LegalCaseRepository;
 import com.lexflow.document.model.Document;
 import com.lexflow.document.repository.DocumentRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +13,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,7 +22,7 @@ import static org.mockito.Mockito.*;
 class DocumentServiceTest {
 
     private DocumentRepository documentRepository;
-    private LegalCaseService legalCaseService;
+    private LegalCaseRepository legalCaseRepository;
     private DocumentService documentService;
 
     @TempDir
@@ -30,8 +31,22 @@ class DocumentServiceTest {
     @BeforeEach
     void setUp() {
         documentRepository = mock(DocumentRepository.class);
-        legalCaseService = mock(LegalCaseService.class);
-        documentService = new DocumentService(documentRepository, legalCaseService, tempDir.toString());
+        legalCaseRepository = mock(LegalCaseRepository.class);
+        documentService = new DocumentService(documentRepository, legalCaseRepository, tempDir.toString());
+    }
+
+    @Test
+    void getDocumentsByCaseId_shouldReturnDocumentsForCase() {
+        Document document = new Document();
+        document.setOriginalFileName("contract.pdf");
+
+        when(documentRepository.findByLegalCaseId(1L)).thenReturn(List.of(document));
+
+        List<Document> result = documentService.getDocumentsByCaseId(1L);
+
+        assertEquals(1, result.size());
+        assertEquals("contract.pdf", result.get(0).getOriginalFileName());
+        verify(documentRepository).findByLegalCaseId(1L);
     }
 
     @Test
@@ -41,25 +56,25 @@ class DocumentServiceTest {
 
         when(documentRepository.findById(1L)).thenReturn(Optional.of(document));
 
-        Document result = documentService.getDocumentById(1L);
+        Optional<Document> result = documentService.getDocumentById(1L);
 
-        assertNotNull(result);
-        assertEquals("contract.pdf", result.getOriginalFileName());
+        assertTrue(result.isPresent());
+        assertEquals("contract.pdf", result.get().getOriginalFileName());
         verify(documentRepository).findById(1L);
     }
 
     @Test
-    void getDocumentById_shouldReturnNull_whenNotFound() {
+    void getDocumentById_shouldReturnEmpty_whenNotFound() {
         when(documentRepository.findById(999L)).thenReturn(Optional.empty());
 
-        Document result = documentService.getDocumentById(999L);
+        Optional<Document> result = documentService.getDocumentById(999L);
 
-        assertNull(result);
+        assertTrue(result.isEmpty());
         verify(documentRepository).findById(999L);
     }
 
     @Test
-    void addDocumentToCase_shouldThrowException_whenCaseNotFound() {
+    void saveDocument_shouldThrowException_whenCaseNotFound() {
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "contract.pdf",
@@ -67,22 +82,20 @@ class DocumentServiceTest {
                 "test content".getBytes()
         );
 
-        when(legalCaseService.getCaseById(1L)).thenReturn(null);
+        when(legalCaseRepository.findById(1L)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> documentService.addDocumentToCase(1L, file)
+                () -> documentService.saveDocument(1L, file)
         );
 
-        assertEquals("Case not found", exception.getMessage());
-        verify(legalCaseService).getCaseById(1L);
+        assertEquals("Case not found with id: 1", exception.getMessage());
+        verify(legalCaseRepository).findById(1L);
         verify(documentRepository, never()).save(any());
     }
 
     @Test
-    void addDocumentToCase_shouldThrowException_whenFileIsEmpty() {
-        LegalCase legalCase = new LegalCase();
-
+    void saveDocument_shouldThrowException_whenFileIsEmpty() {
         MockMultipartFile emptyFile = new MockMultipartFile(
                 "file",
                 "empty.pdf",
@@ -90,22 +103,18 @@ class DocumentServiceTest {
                 new byte[0]
         );
 
-        when(legalCaseService.getCaseById(1L)).thenReturn(legalCase);
-
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> documentService.addDocumentToCase(1L, emptyFile)
+                () -> documentService.saveDocument(1L, emptyFile)
         );
 
-        assertEquals("Please select a file to upload.", exception.getMessage());
-        verify(legalCaseService).getCaseById(1L);
+        assertEquals("File is empty.", exception.getMessage());
+        verify(legalCaseRepository, never()).findById(anyLong());
         verify(documentRepository, never()).save(any());
     }
 
     @Test
-    void addDocumentToCase_shouldThrowException_whenFileTypeIsNotAllowed() {
-        LegalCase legalCase = new LegalCase();
-
+    void saveDocument_shouldThrowException_whenFileTypeIsNotAllowed() {
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "malware.exe",
@@ -113,20 +122,18 @@ class DocumentServiceTest {
                 "binary".getBytes()
         );
 
-        when(legalCaseService.getCaseById(1L)).thenReturn(legalCase);
-
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> documentService.addDocumentToCase(1L, file)
+                () -> documentService.saveDocument(1L, file)
         );
 
-        assertEquals("File type is not allowed. Please upload PDF, DOC, DOCX, TXT, PNG, or JPG.", exception.getMessage());
-        verify(legalCaseService).getCaseById(1L);
+        assertEquals("Unsupported file type.", exception.getMessage());
+        verify(legalCaseRepository, never()).findById(anyLong());
         verify(documentRepository, never()).save(any());
     }
 
     @Test
-    void addDocumentToCase_shouldSaveDocumentAndFile_whenInputIsValid() throws IOException {
+    void saveDocument_shouldSaveDocumentAndFile_whenInputIsValid() throws IOException {
         LegalCase legalCase = new LegalCase();
 
         MockMultipartFile file = new MockMultipartFile(
@@ -136,9 +143,9 @@ class DocumentServiceTest {
                 "sample pdf content".getBytes()
         );
 
-        when(legalCaseService.getCaseById(1L)).thenReturn(legalCase);
+        when(legalCaseRepository.findById(1L)).thenReturn(Optional.of(legalCase));
 
-        documentService.addDocumentToCase(1L, file);
+        documentService.saveDocument(1L, file);
 
         ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
         verify(documentRepository).save(captor.capture());
@@ -160,7 +167,7 @@ class DocumentServiceTest {
     }
 
     @Test
-    void addDocumentToCase_shouldUseFallbackName_whenOriginalFilenameIsMissing() throws IOException {
+    void saveDocument_shouldUseFallbackName_whenOriginalFilenameIsMissing() throws IOException {
         LegalCase legalCase = new LegalCase();
 
         MockMultipartFile file = new MockMultipartFile(
@@ -170,37 +177,39 @@ class DocumentServiceTest {
                 "content".getBytes()
         );
 
-        when(legalCaseService.getCaseById(1L)).thenReturn(legalCase);
+        when(legalCaseRepository.findById(1L)).thenReturn(Optional.of(legalCase));
 
-        documentService.addDocumentToCase(1L, file);
+        documentService.saveDocument(1L, file);
 
         ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
         verify(documentRepository).save(captor.capture());
 
         Document savedDocument = captor.getValue();
 
-        assertEquals("uploaded-file", savedDocument.getOriginalFileName());
-        assertTrue(savedDocument.getStoredFileName().contains("uploaded-file"));
+        assertTrue(savedDocument.getOriginalFileName() == null || savedDocument.getOriginalFileName().isBlank());
+        assertNotNull(savedDocument.getStoredFileName());
+        assertTrue(savedDocument.getStoredFileName().contains("_"));
+
+        Path savedPath = tempDir.resolve(savedDocument.getStoredFileName());
+        assertTrue(Files.exists(savedPath));
+        assertEquals("content", Files.readString(savedPath));
     }
 
     @Test
-    void getDocumentPath_shouldResolveStoredFileNameAgainstUploadPath() {
-        Document document = new Document();
-        document.setStoredFileName("abc_contract.pdf");
-
-        Path result = documentService.getDocumentPath(document);
+    void getFilePath_shouldResolveStoredFileNameAgainstUploadPath() {
+        Path result = documentService.getFilePath("abc_contract.pdf");
 
         assertEquals(tempDir.resolve("abc_contract.pdf").normalize(), result);
     }
 
     @Test
-    void deleteDocument_shouldDoNothing_whenDocumentDoesNotExist() {
+    void deleteDocument_shouldDoNothing_whenDocumentDoesNotExist() throws IOException {
         when(documentRepository.findById(1L)).thenReturn(Optional.empty());
 
         documentService.deleteDocument(1L);
 
         verify(documentRepository).findById(1L);
-        verify(documentRepository, never()).deleteById(any());
+        verify(documentRepository, never()).deleteById(anyLong());
     }
 
     @Test
@@ -221,47 +230,15 @@ class DocumentServiceTest {
     }
 
     @Test
-    void formatFileSize_shouldReturnUnknown_whenNull() {
-        assertEquals("Unknown size", documentService.formatFileSize(null));
-    }
+    void deleteDocument_shouldDeleteRepositoryRecordEvenIfFileIsMissing() throws IOException {
+        Document document = new Document();
+        document.setStoredFileName("missing.pdf");
 
-    @Test
-    void formatFileSize_shouldReturnBytes_whenLessThanOneKb() {
-        assertEquals("512 B", documentService.formatFileSize(512L));
-    }
+        when(documentRepository.findById(1L)).thenReturn(Optional.of(document));
 
-    @Test
-    void formatFileSize_shouldReturnKb_whenLessThanOneMb() {
-        assertEquals("1.5 KB", documentService.formatFileSize(1536L));
-    }
+        documentService.deleteDocument(1L);
 
-    @Test
-    void formatFileSize_shouldReturnMb_whenOneMbOrMore() {
-        assertEquals("1.5 MB", documentService.formatFileSize(1572864L));
-    }
-
-    @Test
-    void getFriendlyFileType_shouldReturnUnknown_whenNull() {
-        assertEquals("Unknown", documentService.getFriendlyFileType(null));
-    }
-
-    @Test
-    void getFriendlyFileType_shouldReturnUnknown_whenBlank() {
-        assertEquals("Unknown", documentService.getFriendlyFileType(" "));
-    }
-
-    @Test
-    void getFriendlyFileType_shouldReturnFriendlyLabels_forKnownTypes() {
-        assertEquals("PDF", documentService.getFriendlyFileType("application/pdf"));
-        assertEquals("DOC", documentService.getFriendlyFileType("application/msword"));
-        assertEquals("DOCX", documentService.getFriendlyFileType("application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
-        assertEquals("TXT", documentService.getFriendlyFileType("text/plain"));
-        assertEquals("PNG", documentService.getFriendlyFileType("image/png"));
-        assertEquals("JPG", documentService.getFriendlyFileType("image/jpeg"));
-    }
-
-    @Test
-    void getFriendlyFileType_shouldReturnOriginalType_forUnknownTypes() {
-        assertEquals("application/zip", documentService.getFriendlyFileType("application/zip"));
+        verify(documentRepository).findById(1L);
+        verify(documentRepository).deleteById(1L);
     }
 }

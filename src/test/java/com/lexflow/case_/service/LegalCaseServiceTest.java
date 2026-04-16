@@ -98,22 +98,13 @@ class LegalCaseServiceTest {
     }
 
     @Test
-    void getOpenCasesCount_shouldCountOnlyOpenCases() {
-        LegalCase openCase1 = new LegalCase();
-        openCase1.setStatus(CaseStatus.OPEN);
-
-        LegalCase openCase2 = new LegalCase();
-        openCase2.setStatus(CaseStatus.OPEN);
-
-        LegalCase closedCase = new LegalCase();
-        closedCase.setStatus(CaseStatus.CLOSED);
-
-        when(legalCaseRepository.findAll()).thenReturn(List.of(openCase1, openCase2, closedCase));
+    void getOpenCasesCount_shouldReturnCountByStatus() {
+        when(legalCaseRepository.countByStatus(CaseStatus.OPEN)).thenReturn(2L);
 
         long result = legalCaseService.getOpenCasesCount();
 
         assertEquals(2L, result);
-        verify(legalCaseRepository).findAll();
+        verify(legalCaseRepository).countByStatus(CaseStatus.OPEN);
     }
 
     @Test
@@ -124,19 +115,17 @@ class LegalCaseServiceTest {
         LegalCase case2 = new LegalCase();
         case2.setTitle("Case 2");
 
-        LegalCase case3 = new LegalCase();
-        case3.setTitle("Case 1");
+        Page<LegalCase> page = new PageImpl<>(List.of(case1, case2));
 
-        Sort sort = Sort.by(Sort.Direction.DESC, "id");
-
-        when(legalCaseRepository.findAll(sort)).thenReturn(List.of(case1, case2, case3));
+        Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.DESC, "id"));
+        when(legalCaseRepository.findAll(pageable)).thenReturn(page);
 
         List<LegalCase> result = legalCaseService.getRecentCases(2);
 
         assertEquals(2, result.size());
         assertEquals("Case 3", result.get(0).getTitle());
         assertEquals("Case 2", result.get(1).getTitle());
-        verify(legalCaseRepository).findAll(sort);
+        verify(legalCaseRepository).findAll(pageable);
     }
 
     @Test
@@ -189,9 +178,9 @@ class LegalCaseServiceTest {
         Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"));
         Page<LegalCase> page = new PageImpl<>(List.of(new LegalCase()));
 
-        when(legalCaseRepository.findByStatusAndTitleContainingIgnoreCaseOrStatusAndClientContainingIgnoreCase(
-                CaseStatus.OPEN, "Acme",
-                CaseStatus.OPEN, "Acme",
+        when(legalCaseRepository.searchByStatusAndKeyword(
+                CaseStatus.OPEN,
+                "Acme",
                 pageable
         )).thenReturn(page);
 
@@ -199,12 +188,7 @@ class LegalCaseServiceTest {
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
-        verify(legalCaseRepository)
-                .findByStatusAndTitleContainingIgnoreCaseOrStatusAndClientContainingIgnoreCase(
-                        CaseStatus.OPEN, "Acme",
-                        CaseStatus.OPEN, "Acme",
-                        pageable
-                );
+        verify(legalCaseRepository).searchByStatusAndKeyword(CaseStatus.OPEN, "Acme", pageable);
     }
 
     @Test

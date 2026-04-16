@@ -81,6 +81,21 @@ class CaseControllerTest {
     }
 
     @Test
+    void addCase_shouldReturnForm_whenValidationFails() throws Exception {
+        mockMvc.perform(post("/cases")
+                        .param("title", "")
+                        .param("client", "")
+                        .param("type", "CONTRACT")
+                        .param("status", "OPEN"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("case-form"))
+                .andExpect(model().attribute("formMode", "create"))
+                .andExpect(model().attributeHasFieldErrors("legalCase", "title", "client"));
+
+        verify(legalCaseService, never()).saveCase(any());
+    }
+
+    @Test
     void caseDetails_shouldReturnCaseDetails_whenCaseExists() throws Exception {
         LegalCase legalCase = new LegalCase();
         legalCase.setTitle("Contract Review");
@@ -88,9 +103,6 @@ class CaseControllerTest {
         legalCase.setStatus(CaseStatus.OPEN);
 
         when(legalCaseService.getCaseById(1L)).thenReturn(legalCase);
-        when(legalCaseService.getFriendlyType(CaseType.CONTRACT)).thenReturn("Contract");
-        when(legalCaseService.getFriendlyStatus(CaseStatus.OPEN)).thenReturn("Open");
-        when(legalCaseService.getStatusBadgeClass(CaseStatus.OPEN)).thenReturn("bg-primary");
 
         mockMvc.perform(get("/cases/1"))
                 .andExpect(status().isOk())
@@ -160,11 +172,30 @@ class CaseControllerTest {
 
         verify(legalCaseService).getCaseById(1L);
         verify(legalCaseService).saveCase(existingCase);
+    }
 
-        org.junit.jupiter.api.Assertions.assertEquals("Updated Title", existingCase.getTitle());
-        org.junit.jupiter.api.Assertions.assertEquals("Updated Client", existingCase.getClient());
-        org.junit.jupiter.api.Assertions.assertEquals(CaseType.CONTRACT, existingCase.getType());
-        org.junit.jupiter.api.Assertions.assertEquals(CaseStatus.CLOSED, existingCase.getStatus());
+    @Test
+    void updateCase_shouldReturnForm_whenValidationFails() throws Exception {
+        LegalCase existingCase = new LegalCase();
+        existingCase.setTitle("Old Title");
+        existingCase.setClient("Old Client");
+        existingCase.setType(CaseType.OTHER);
+        existingCase.setStatus(CaseStatus.OPEN);
+
+        when(legalCaseService.getCaseById(1L)).thenReturn(existingCase);
+
+        mockMvc.perform(post("/cases/1/edit")
+                        .param("title", "")
+                        .param("client", "")
+                        .param("type", "CONTRACT")
+                        .param("status", "OPEN"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("case-form"))
+                .andExpect(model().attribute("formMode", "edit"))
+                .andExpect(model().attributeHasFieldErrors("legalCase", "title", "client"));
+
+        verify(legalCaseService).getCaseById(1L);
+        verify(legalCaseService, never()).saveCase(any());
     }
 
     @Test

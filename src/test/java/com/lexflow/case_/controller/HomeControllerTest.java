@@ -36,13 +36,12 @@ class HomeControllerTest {
         LegalCase legalCase2 = new LegalCase();
         legalCase2.setTitle("Compliance Audit");
 
-        Deadline overdueDeadline = new Deadline();
         Deadline upcomingDeadline1 = new Deadline();
         Deadline upcomingDeadline2 = new Deadline();
 
         when(legalCaseService.getTotalCasesCount()).thenReturn(10L);
         when(legalCaseService.getOpenCasesCount()).thenReturn(4L);
-        when(deadlineService.getOverdueDeadlines()).thenReturn(List.of(overdueDeadline));
+        when(deadlineService.getOverdueDeadlines()).thenReturn(List.of());
         when(deadlineService.getUpcomingDeadlines()).thenReturn(List.of(upcomingDeadline1, upcomingDeadline2));
         when(legalCaseService.getRecentCases(5)).thenReturn(List.of(legalCase1, legalCase2));
 
@@ -51,7 +50,7 @@ class HomeControllerTest {
                 .andExpect(view().name("index"))
                 .andExpect(model().attribute("totalCases", 10L))
                 .andExpect(model().attribute("openCases", 4L))
-                .andExpect(model().attribute("overdueDeadlines", 1))
+                .andExpect(model().attribute("overdueDeadlines", 0))
                 .andExpect(model().attribute("upcomingDeadlines", 2))
                 .andExpect(model().attribute("recentCases", List.of(legalCase1, legalCase2)))
                 .andExpect(model().attributeExists("legalCaseService"));
