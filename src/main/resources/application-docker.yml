@@ -1,0 +1,8 @@
+spring:
+  jpa:
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data-docker.sql

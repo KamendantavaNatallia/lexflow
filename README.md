@@ -1,56 +1,42 @@
 # LexFlow
 
-LexFlow is a legal case management application built with Java and Spring Boot.
+LexFlow is a Spring Boot web application for managing legal cases, deadlines, notes, and documents.
 
-It was created as a portfolio project to demonstrate backend engineering skills through a realistic legal-tech domain: case management, deadline tracking, notes, document workflows, validation, centralized exception handling, layered architecture, and automated testing.
-
-## Why this project
-
-LexFlow simulates an internal system that could be used by a law office or legal operations team to:
-
-- manage legal cases
-- track important deadlines
-- organize case notes
-- upload and manage case-related documents
-- browse records with filtering, sorting, and pagination
-
-The goal of the project is not only to build a functional CRUD application, but also to model realistic backend workflows in a business domain.
+It was built as a backend-focused pet project to demonstrate:
+- Java and Spring Boot development
+- layered application design
+- CRUD workflows
+- database integration with PostgreSQL
+- testing with JUnit and Mockito
+- CI with GitHub Actions
+- containerized local setup with Docker
 
 ---
 
-## Core Features
+## Features
 
 ### Case management
-- create, edit, view, and delete legal cases
-- track case title, client, type, and status
-- browse cases with:
-  - keyword search
-  - status filtering
-  - sorting
-  - pagination
-  - page size selection
+- create legal cases
+- edit and delete cases
+- search cases by keyword
+- filter by status
+- sort and paginate results
 
 ### Deadline tracking
-- add deadlines to a case
-- edit deadlines
+- add deadlines to cases
 - mark deadlines as completed
-- delete deadlines
 - view overdue deadlines
-- view upcoming deadlines on the dashboard
+- view upcoming deadlines
 
 ### Notes
-- add notes to a case
-- edit notes
+- add notes to cases
+- store case-related internal context
 - delete notes
 
-### Document management
-- upload files linked to legal cases
-- store file metadata in PostgreSQL
-- save uploaded files locally
+### Documents
+- upload documents for cases
 - download uploaded files
-- delete uploaded files
-- validate file type and file size
-- display upload timestamp and formatted file size
+- delete documents
 
 ### Dashboard
 - total cases
@@ -58,7 +44,7 @@ The goal of the project is not only to build a functional CRUD application, but 
 - overdue deadlines
 - upcoming deadlines
 - recent cases
-- quick actions
+- quick actions for common workflows
 
 ---
 
@@ -68,33 +54,18 @@ The goal of the project is not only to build a functional CRUD application, but 
 - Spring Boot 3
 - Spring MVC
 - Spring Data JPA
-- Hibernate
-- PostgreSQL
 - Thymeleaf
-- Bootstrap 5
-- Maven
-
-### Testing
+- PostgreSQL
+- H2 (for repository tests)
 - JUnit 5
 - Mockito
-- MockMvc
-- H2
+- GitHub Actions
+- Docker
+- Docker Compose
 
 ---
 
-## Architecture
-
-LexFlow uses a layered backend structure with feature-based packaging.
-
-Each domain module contains:
-- controller
-- model
-- repository
-- service
-
-This keeps the codebase modular and easier to extend as the project grows.
-
-### Main source set
+## Project Structure
 
 ```text
 src/main/java/com/lexflow
@@ -103,6 +74,8 @@ src/main/java/com/lexflow
 │   ├── model
 │   ├── repository
 │   └── service
+├── common
+│   └── exception
 ├── deadline
 │   ├── controller
 │   ├── model
@@ -118,5 +91,4 @@ src/main/java/com/lexflow
 │   ├── model
 │   ├── repository
 │   └── service
-└── common
-    └── exception
+└── LexFlowApplication

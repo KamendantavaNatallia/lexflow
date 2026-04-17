@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:16
+    container_name: lexflow-db
+    environment:
+      POSTGRES_DB: lexflow_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: lexflow-app
+    depends_on:
+      - db
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_URL: jdbc:postgresql://db:5432/lexflow_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      UPLOAD_DIR: /app/uploads/documents
+    volumes:
+      - lexflow_uploads:/app/uploads/documents
+
+volumes:
+  postgres_data:
+  lexflow_uploads:
