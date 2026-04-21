@@ -1,50 +1,31 @@
 # LexFlow
 
-LexFlow is a Spring Boot web application for managing legal cases, deadlines, notes, and documents.
+LexFlow is a backend-focused legal case management application built with Java and Spring Boot.
 
-It was built as a backend-focused pet project to demonstrate:
-- Java and Spring Boot development
-- layered application design
-- CRUD workflows
-- database integration with PostgreSQL
-- testing with JUnit and Mockito
-- CI with GitHub Actions
-- containerized local setup with Docker
+It helps manage:
+- legal cases
+- deadlines
+- notes
+- documents
+
+The project demonstrates a structured Spring Boot application with PostgreSQL, Flyway migrations, Docker support, testing, and CI.
 
 ---
 
 ## Features
 
-### Case management
-- create legal cases
-- edit and delete cases
-- search cases by keyword
-- filter by status
-- sort and paginate results
-
-### Deadline tracking
-- add deadlines to cases
-- mark deadlines as completed
-- view overdue deadlines
-- view upcoming deadlines
-
-### Notes
-- add notes to cases
-- store case-related internal context
-- delete notes
-
-### Documents
-- upload documents for cases
-- download uploaded files
-- delete documents
-
-### Dashboard
-- total cases
-- open cases
-- overdue deadlines
-- upcoming deadlines
-- recent cases
-- quick actions for common workflows
+- Manage legal cases
+- Track deadlines with priority and completion status
+- Add notes to cases
+- Upload, download, and delete documents
+- Search and filter cases
+- Dashboard with case and deadline overview
+- PostgreSQL persistence
+- Flyway-based database schema management
+- Demo seed data for quick startup
+- Dockerized application setup
+- Automated tests with JUnit and Mockito
+- CI with GitHub Actions
 
 ---
 
@@ -56,39 +37,32 @@ It was built as a backend-focused pet project to demonstrate:
 - Spring Data JPA
 - Thymeleaf
 - PostgreSQL
-- H2 (for repository tests)
+- Flyway
+- Maven
+- Docker / Docker Compose
 - JUnit 5
 - Mockito
 - GitHub Actions
-- Docker
-- Docker Compose
 
 ---
 
 ## Project Structure
 
 ```text
-src/main/java/com/lexflow
-├── case_
-│   ├── controller
-│   ├── model
-│   ├── repository
-│   └── service
-├── common
-│   └── exception
-├── deadline
-│   ├── controller
-│   ├── model
-│   ├── repository
-│   └── service
-├── document
-│   ├── controller
-│   ├── model
-│   ├── repository
-│   └── service
-├── note
-│   ├── controller
-│   ├── model
-│   ├── repository
-│   └── service
-└── LexFlowApplication
+src
+├── main
+│   ├── java/com/lexflow
+│   │   ├── case_
+│   │   ├── common
+│   │   ├── deadline
+│   │   ├── document
+│   │   └── note
+│   └── resources
+│       ├── db/migration
+│       │   ├── V1__init_schema.sql
+│       │   └── V2__seed_demo_data.sql
+│       ├── templates
+│       ├── application.yml
+│       ├── application-dev.yml
+│       └── application-docker.yml
+└── test

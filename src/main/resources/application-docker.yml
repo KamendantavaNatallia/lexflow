@@ -1,8 +1,9 @@
 spring:
-  jpa:
-    defer-datasource-initialization: true
+  datasource:
+    url: jdbc:postgresql://db:5432/lexflow_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
 
-  sql:
-    init:
-      mode: always
-      data-locations: classpath:data-docker.sql
+  jpa:
+    show-sql: true
