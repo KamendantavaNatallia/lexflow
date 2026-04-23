@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -55,7 +56,7 @@
                 </p>
             </div>
 
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2" sec:authorize="hasRole('ADMIN')">
                 <a th:href="@{/cases/{id}/edit(id=${legalCase.id})}" class="btn btn-outline-primary">
                     Edit Case
                 </a>
@@ -74,7 +75,9 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0">Documents</h5>
-                        <a th:href="@{/cases/{id}/documents/new(id=${legalCase.id})}" class="btn btn-sm btn-dark">
+                        <a sec:authorize="hasRole('ADMIN')"
+                           th:href="@{/cases/{id}/documents/new(id=${legalCase.id})}"
+                           class="btn btn-sm btn-dark">
                             Add Document
                         </a>
                     </div>
@@ -102,7 +105,8 @@
                                     </a>
                                 </div>
 
-                                <form th:action="@{/documents/{id}/delete(id=${document.id})}"
+                                <form sec:authorize="hasRole('ADMIN')"
+                                      th:action="@{/documents/{id}/delete(id=${document.id})}"
                                       method="post"
                                       onsubmit="return confirm('Delete this document?');">
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
@@ -119,7 +123,9 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0">Deadlines</h5>
-                        <a th:href="@{/cases/{id}/deadlines/new(id=${legalCase.id})}" class="btn btn-sm btn-dark">
+                        <a sec:authorize="hasRole('ADMIN')"
+                           th:href="@{/cases/{id}/deadlines/new(id=${legalCase.id})}"
+                           class="btn btn-sm btn-dark">
                             Add Deadline
                         </a>
                     </div>
@@ -147,7 +153,7 @@
                                     </div>
                                 </div>
 
-                                <div class="d-flex flex-column gap-2">
+                                <div class="d-flex flex-column gap-2" sec:authorize="hasRole('ADMIN')">
                                     <a th:href="@{/deadlines/{id}/edit(id=${deadline.id})}" class="btn btn-sm btn-outline-primary">
                                         Edit
                                     </a>
@@ -176,7 +182,9 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0">Notes</h5>
-                        <a th:href="@{/cases/{id}/notes/new(id=${legalCase.id})}" class="btn btn-sm btn-dark">
+                        <a sec:authorize="hasRole('ADMIN')"
+                           th:href="@{/cases/{id}/notes/new(id=${legalCase.id})}"
+                           class="btn btn-sm btn-dark">
                             Add Note
                         </a>
                     </div>
@@ -190,7 +198,7 @@
                             <div class="d-flex justify-content-between align-items-start gap-2">
                                 <div th:text="${note.content}">Note content</div>
 
-                                <div class="d-flex flex-column gap-2">
+                                <div class="d-flex flex-column gap-2" sec:authorize="hasRole('ADMIN')">
                                     <a th:href="@{/notes/{id}/edit(id=${note.id})}" class="btn btn-sm btn-outline-primary">
                                         Edit
                                     </a>

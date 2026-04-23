@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,7 +33,11 @@
       <p class="text-muted mb-0">Manage all legal cases in one place.</p>
     </div>
 
-    <a th:href="@{/cases/new}" class="btn btn-dark">New Case</a>
+    <a sec:authorize="hasRole('ADMIN')"
+       th:href="@{/cases/new}"
+       class="btn btn-dark">
+      New Case
+    </a>
   </div>
 
   <div class="card shadow-sm border-0 mb-4">
@@ -126,13 +131,15 @@
                 <a th:href="@{/cases/{id}(id=${legalCase.id})}" class="btn btn-sm btn-outline-secondary">
                   View
                 </a>
-                <a th:href="@{/cases/{id}/edit(id=${legalCase.id})}" class="btn btn-sm btn-outline-primary">
+                <a sec:authorize="hasRole('ADMIN')"
+                   th:href="@{/cases/{id}/edit(id=${legalCase.id})}"
+                   class="btn btn-sm btn-outline-primary">
                   Edit
                 </a>
-                <form th:action="@{/cases/{id}/delete(id=${legalCase.id})}"
+                <form sec:authorize="hasRole('ADMIN')"
+                      th:action="@{/cases/{id}/delete(id=${legalCase.id})}"
                       method="post"
-                      onsubmit="return confirm('Delete this case and all related data?');"
-                      class="d-inline">
+                      style="display:inline;">
                   <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                 </form>
               </div>

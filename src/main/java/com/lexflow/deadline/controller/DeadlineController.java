@@ -23,6 +23,26 @@ public class DeadlineController {
         this.legalCaseService = legalCaseService;
     }
 
+    @GetMapping("/deadlines/overdue")
+    public String showOverdueDeadlines(Model model) {
+        model.addAttribute("deadlines", deadlineService.getOverdueDeadlines());
+        model.addAttribute("pageTitle", "Overdue Deadlines");
+        model.addAttribute("pageDescription", "Deadlines that have already passed and are not completed.");
+        model.addAttribute("emptyMessage", "No overdue deadlines found.");
+        model.addAttribute("activeTab", "overdue");
+        return "deadlines-list";
+    }
+
+    @GetMapping("/deadlines/upcoming")
+    public String showUpcomingDeadlines(Model model) {
+        model.addAttribute("deadlines", deadlineService.getUpcomingDeadlines());
+        model.addAttribute("pageTitle", "Upcoming Deadlines");
+        model.addAttribute("pageDescription", "Active deadlines that are coming soon.");
+        model.addAttribute("emptyMessage", "No upcoming deadlines found.");
+        model.addAttribute("activeTab", "upcoming");
+        return "deadlines-list";
+    }
+
     @GetMapping("/cases/{id}/deadlines/new")
     public String showDeadlineForm(@PathVariable Long id, Model model) {
         LegalCase selectedCase = legalCaseService.getCaseById(id);
