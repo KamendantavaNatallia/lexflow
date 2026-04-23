@@ -74,24 +74,7 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand fw-bold" th:href="@{/}">LexFlow</a>
-
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="mainNav">
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link active" th:href="@{/}">Home</a>
-                <a class="nav-link" th:href="@{/cases}">Cases</a>
-                <a class="nav-link" th:href="@{/deadlines/overdue}">Overdue Deadlines</a>
-                <a class="nav-link" th:href="@{/deadlines/upcoming}">Upcoming Deadlines</a>
-            </div>
-        </div>
-    </div>
-</nav>
+<div th:replace="~{fragments/navbar :: mainNav('home')}"></div>
 
 <div class="container">
     <section class="hero">

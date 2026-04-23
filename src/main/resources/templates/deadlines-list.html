@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title th:text="${pageTitle} + ' - LexFlow'">Deadlines - LexFlow</title>
@@ -33,32 +34,7 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand fw-bold" th:href="@{/}">LexFlow</a>
-
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="mainNav">
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" th:href="@{/}">Dashboard</a>
-                <a class="nav-link" th:href="@{/cases}">Cases</a>
-                <a class="nav-link"
-                   th:classappend="${activeTab == 'overdue'} ? ' active' : ''"
-                   th:href="@{/deadlines/overdue}">
-                    Overdue Deadlines
-                </a>
-                <a class="nav-link"
-                   th:classappend="${activeTab == 'upcoming'} ? ' active' : ''"
-                   th:href="@{/deadlines/upcoming}">
-                    Upcoming Deadlines
-                </a>
-            </div>
-        </div>
-    </div>
-</nav>
+<div th:replace="~{fragments/navbar :: mainNav(${activeTab})}"></div>
 
 <div class="container py-5">
     <div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">

@@ -9,16 +9,7 @@
 </head>
 <body class="bg-light">
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand fw-bold" th:href="@{/}">LexFlow</a>
-        <div class="navbar-nav">
-            <a class="nav-link" th:href="@{/}">Home</a>
-            <a class="nav-link active" th:href="@{/cases}">Cases</a>
-            <a class="nav-link" th:href="@{/deadlines/overdue}">Overdue Deadlines</a>
-        </div>
-    </div>
-</nav>
+<div th:replace="~{fragments/navbar :: mainNav('cases')}"></div>
 
 <div class="container py-5">
 

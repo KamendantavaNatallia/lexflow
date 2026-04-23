@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<nav th:fragment="mainNav(activePage)" class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" th:href="@{/}">LexFlow</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavBar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavBar">
+            <div class="navbar-nav me-auto">
+                <a class="nav-link"
+                   th:classappend="${activePage == 'home'} ? ' active' : ''"
+                   th:href="@{/}">
+                    Home
+                </a>
+
+                <a class="nav-link"
+                   th:classappend="${activePage == 'cases'} ? ' active' : ''"
+                   th:href="@{/cases}">
+                    Cases
+                </a>
+
+                <a class="nav-link"
+                   th:classappend="${activePage == 'overdue'} ? ' active' : ''"
+                   th:href="@{/deadlines/overdue}">
+                    Overdue Deadlines
+                </a>
+
+                <a class="nav-link"
+                   th:classappend="${activePage == 'upcoming'} ? ' active' : ''"
+                   th:href="@{/deadlines/upcoming}">
+                    Upcoming Deadlines
+                </a>
+            </div>
+
+            <div class="d-flex align-items-center gap-3" sec:authorize="isAuthenticated()">
+                <span class="text-light small">
+                    Signed in as
+                    <strong sec:authentication="name">user</strong>
+                </span>
+
+                <form th:action="@{/logout}" method="post" class="mb-0">
+                    <button type="submit" class="btn btn-outline-light btn-sm">
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Access Denied - LexFlow</title>
@@ -9,16 +10,20 @@
         body {
             background-color: #f8f9fa;
         }
+
         .denied-card {
             max-width: 720px;
             margin: 80px auto;
             border: 0;
             border-radius: 1rem;
-            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
         }
     </style>
 </head>
 <body>
+
+<div th:replace="~{fragments/navbar :: mainNav('cases')}"></div>
+
 <div class="container">
     <div class="card denied-card">
         <div class="card-body p-5 text-center">
@@ -34,5 +39,6 @@
         </div>
     </div>
 </div>
+
 </body>
 </html>
