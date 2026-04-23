@@ -3,7 +3,6 @@ package com.lexflow.common.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,7 +21,6 @@ public class SecurityConfig {
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/login", "/access-denied").permitAll()
 
-                        // ADMIN-only GET pages
                         .requestMatchers(HttpMethod.GET, "/cases/new").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/cases/*/edit").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/cases/*/deadlines/new").hasRole("ADMIN")
@@ -31,16 +29,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/deadlines/*/edit").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/notes/*/edit").hasRole("ADMIN")
 
-                        // ADMIN-only write operations
                         .requestMatchers(HttpMethod.POST, "/cases/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/deadlines/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/notes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/documents/**").hasRole("ADMIN")
 
-                        // Everything else requires login
                         .anyRequest().authenticated()
                 )
-                .formLogin(Customizer.withDefaults())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/", true)
+                        .permitAll()
+                )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
