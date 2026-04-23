@@ -54,6 +54,9 @@
 
                 <form th:action="@{/cases/{id}/delete(id=${legalCase.id})}" method="post"
                       onsubmit="return confirm('Delete this case and all related data?');">
+                    <input type="hidden"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
                     <button type="submit" class="btn btn-danger">Delete Case</button>
                 </form>
             </div>
@@ -100,6 +103,9 @@
                                       th:action="@{/documents/{id}/delete(id=${document.id})}"
                                       method="post"
                                       onsubmit="return confirm('Delete this document?');">
+                                    <input type="hidden"
+                                           th:name="${_csrf.parameterName}"
+                                           th:value="${_csrf.token}">
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                                 </form>
                             </div>

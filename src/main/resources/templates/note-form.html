@@ -8,15 +8,7 @@
 </head>
 <body class="bg-light">
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container">
-    <a class="navbar-brand fw-bold" th:href="@{/}">LexFlow</a>
-    <div class="navbar-nav">
-      <a class="nav-link" th:href="@{/}">Home</a>
-      <a class="nav-link active" th:href="@{/cases}">Cases</a>
-    </div>
-  </div>
-</nav>
+<div th:replace="~{fragments/navbar :: mainNav('cases')}"></div>
 
 <div class="container py-5">
   <div class="mb-4">
@@ -30,13 +22,19 @@
 
   <div class="card shadow-sm border-0">
     <div class="card-body p-4">
-      <form th:action="${formMode == 'edit'} ? @{/notes/{id}/edit(id=${note.id})} : @{/cases/{id}/notes(id=${legalCase.id})}"
+
+      <form th:if="${formMode == 'edit'}"
+            th:action="@{/notes/{id}/edit(id=${note.id})}"
             th:object="${note}"
             method="post">
 
+        <input type="hidden"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}">
+
         <div class="mb-4">
-          <label for="content" class="form-label">Note Content</label>
-          <textarea id="content"
+          <label for="content-edit" class="form-label">Note Content</label>
+          <textarea id="content-edit"
                     class="form-control"
                     rows="6"
                     th:field="*{content}"></textarea>
@@ -48,13 +46,39 @@
         </div>
 
         <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-dark"
-                  th:text="${formMode == 'edit'} ? 'Update Note' : 'Add Note'">
-            Save
-          </button>
+          <button type="submit" class="btn btn-dark">Update Note</button>
           <a th:href="@{/cases/{id}(id=${legalCase.id})}" class="btn btn-outline-secondary">Cancel</a>
         </div>
       </form>
+
+      <form th:if="${formMode != 'edit'}"
+            th:action="@{/cases/{id}/notes(id=${legalCase.id})}"
+            th:object="${note}"
+            method="post">
+
+        <input type="hidden"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}">
+
+        <div class="mb-4">
+          <label for="content-create" class="form-label">Note Content</label>
+          <textarea id="content-create"
+                    class="form-control"
+                    rows="6"
+                    th:field="*{content}"></textarea>
+          <div class="text-danger small mt-1"
+               th:if="${#fields.hasErrors('content')}"
+               th:errors="*{content}">
+            Content error
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-dark">Add Note</button>
+          <a th:href="@{/cases/{id}(id=${legalCase.id})}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+
     </div>
   </div>
 </div>
