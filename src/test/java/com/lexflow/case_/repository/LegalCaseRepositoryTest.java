@@ -1,5 +1,5 @@
 package com.lexflow.case_.repository;
-
+import org.springframework.test.context.jdbc.Sql;
 import com.lexflow.case_.model.CaseStatus;
 import com.lexflow.case_.model.CaseType;
 import com.lexflow.case_.model.LegalCase;
@@ -10,8 +10,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 @DataJpaTest
+@Sql(
+        statements = {
+                "DELETE FROM documents",
+                "DELETE FROM notes",
+                "DELETE FROM deadlines",
+                "DELETE FROM cases"
+        },
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
+)
 class LegalCaseRepositoryTest {
 
     @Autowired
