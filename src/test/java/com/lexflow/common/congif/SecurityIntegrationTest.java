@@ -1,6 +1,10 @@
 package com.lexflow.common.config;
 
+import com.lexflow.case_.controller.CaseController;
+import com.lexflow.case_.controller.HomeController;
 import com.lexflow.case_.service.LegalCaseService;
+import com.lexflow.common.controller.AuthController;
+import com.lexflow.common.controller.ErrorPageController;
 import com.lexflow.deadline.service.DeadlineService;
 import com.lexflow.document.service.DocumentService;
 import com.lexflow.note.service.NoteService;
@@ -19,8 +23,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
-@Import({SecurityConfig.class, com.lexflow.common.controller.AuthController.class, com.lexflow.common.controller.ErrorPageController.class})
+@WebMvcTest(controllers = {
+        HomeController.class,
+        CaseController.class,
+        AuthController.class,
+        ErrorPageController.class
+})
+@Import(SecurityConfig.class)
 class SecurityIntegrationTest {
 
     @Autowired
