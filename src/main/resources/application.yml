@@ -10,6 +10,12 @@ spring:
   thymeleaf:
     cache: false
 
+  data:
+    web:
+      pageable:
+        # Stable JSON shape for Page responses: { "content": [...], "page": { ... } }
+        serialization-mode: via-dto
+
   servlet:
     multipart:
       max-file-size: 10MB

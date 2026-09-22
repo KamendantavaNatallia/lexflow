@@ -2,8 +2,11 @@ package com.lexflow.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,7 +17,40 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
+    /**
+     * Security for the REST API (/api/**). Checked first because of @Order(1).
+     *
+     * - HTTP Basic instead of a login form: API clients send credentials with every request
+     *   and get 401 (not a redirect to /login) when they are missing.
+     * - STATELESS: no HTTP session and no JSESSIONID cookie for API calls.
+     * - CSRF disabled: CSRF attacks rely on the browser attaching a session cookie automatically.
+     *   Without a session cookie there is nothing to forge, so the token only gets in the way.
+     * - Read endpoints are open to USER and ADMIN; every write method requires ADMIN.
+     */
     @Bean
+    @Order(1)
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/api/**")
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("USER", "ADMIN")
+                        .anyRequest().hasRole("ADMIN")
+                )
+                .httpBasic(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                );
+
+        return http.build();
+    }
+
+    /**
+     * Security for the Thymeleaf web UI: form login, session, CSRF protection.
+     * Handles every request that the API chain above did not match.
+     */
+    @Bean
+    @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth

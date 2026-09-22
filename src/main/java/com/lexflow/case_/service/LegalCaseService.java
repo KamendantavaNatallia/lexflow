@@ -4,11 +4,13 @@ import com.lexflow.case_.model.CaseStatus;
 import com.lexflow.case_.model.CaseType;
 import com.lexflow.case_.model.LegalCase;
 import com.lexflow.case_.repository.LegalCaseRepository;
+import com.lexflow.common.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -48,6 +50,41 @@ public class LegalCaseService {
     public List<LegalCase> getRecentCases(int limit) {
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "id"));
         return legalCaseRepository.findAll(pageable).getContent();
+    }
+
+    /**
+     * Unlike getCaseById (used by the Thymeleaf pages), this method never returns null:
+     * a missing case is an error that the REST layer turns into HTTP 404.
+     */
+    public LegalCase getRequiredCase(Long id) {
+        return legalCaseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Legal case not found with id: " + id));
+    }
+
+    @Transactional
+    public LegalCase createCase(LegalCase legalCase) {
+        return legalCaseRepository.save(legalCase);
+    }
+
+    /**
+     * Loads the managed entity and copies the new values into it.
+     * No explicit save() is needed: inside @Transactional, Hibernate dirty checking
+     * detects the changed fields and issues an UPDATE on commit.
+     */
+    @Transactional
+    public LegalCase updateCase(Long id, LegalCase changes) {
+        LegalCase existing = getRequiredCase(id);
+        existing.setTitle(changes.getTitle());
+        existing.setClient(changes.getClient());
+        existing.setType(changes.getType());
+        existing.setStatus(changes.getStatus());
+        return existing;
+    }
+
+    @Transactional
+    public void deleteRequiredCase(Long id) {
+        LegalCase legalCase = getRequiredCase(id);
+        legalCaseRepository.delete(legalCase);
     }
 
     public Page<LegalCase> searchCases(String keyword, String status, String sort, int page, int size) {

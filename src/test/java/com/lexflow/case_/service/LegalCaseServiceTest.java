@@ -4,6 +4,7 @@ import com.lexflow.case_.model.CaseStatus;
 import com.lexflow.case_.model.CaseType;
 import com.lexflow.case_.model.LegalCase;
 import com.lexflow.case_.repository.LegalCaseRepository;
+import com.lexflow.common.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -217,5 +218,69 @@ class LegalCaseServiceTest {
         assertEquals("bg-secondary", legalCaseService.getStatusBadgeClass(CaseStatus.ON_HOLD));
         assertEquals("bg-success", legalCaseService.getStatusBadgeClass(CaseStatus.CLOSED));
         assertEquals("bg-secondary", legalCaseService.getStatusBadgeClass(null));
+    }
+
+    @Test
+    void getRequiredCase_shouldThrowNotFound_whenCaseDoesNotExist() {
+        when(legalCaseRepository.findById(99L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> legalCaseService.getRequiredCase(99L)
+        );
+
+        assertEquals("Legal case not found with id: 99", exception.getMessage());
+    }
+
+    @Test
+    void createCase_shouldReturnSavedCase() {
+        LegalCase newCase = new LegalCase("NDA review", "Beta Inc", CaseType.CONTRACT, CaseStatus.OPEN);
+        when(legalCaseRepository.save(newCase)).thenReturn(newCase);
+
+        LegalCase result = legalCaseService.createCase(newCase);
+
+        assertSame(newCase, result);
+        verify(legalCaseRepository).save(newCase);
+    }
+
+    @Test
+    void updateCase_shouldCopyAllFieldsIntoExistingCase() {
+        LegalCase existing = new LegalCase("Old title", "Old client", CaseType.OTHER, CaseStatus.OPEN);
+        LegalCase changes = new LegalCase("New title", "New client", CaseType.LITIGATION, CaseStatus.CLOSED);
+        when(legalCaseRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        LegalCase result = legalCaseService.updateCase(1L, changes);
+
+        assertSame(existing, result);
+        assertEquals("New title", result.getTitle());
+        assertEquals("New client", result.getClient());
+        assertEquals(CaseType.LITIGATION, result.getType());
+        assertEquals(CaseStatus.CLOSED, result.getStatus());
+    }
+
+    @Test
+    void updateCase_shouldThrowNotFound_whenCaseDoesNotExist() {
+        when(legalCaseRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> legalCaseService.updateCase(99L, new LegalCase()));
+    }
+
+    @Test
+    void deleteRequiredCase_shouldDeleteExistingCase() {
+        LegalCase existing = new LegalCase("Title", "Client", CaseType.OTHER, CaseStatus.OPEN);
+        when(legalCaseRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        legalCaseService.deleteRequiredCase(1L);
+
+        verify(legalCaseRepository).delete(existing);
+    }
+
+    @Test
+    void deleteRequiredCase_shouldThrowNotFound_andNotDelete_whenCaseDoesNotExist() {
+        when(legalCaseRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> legalCaseService.deleteRequiredCase(99L));
+        verify(legalCaseRepository, never()).delete(any());
     }
 }
