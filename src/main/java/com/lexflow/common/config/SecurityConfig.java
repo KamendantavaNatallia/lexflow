@@ -48,6 +48,8 @@ public class SecurityConfig {
     /**
      * Security for the Thymeleaf web UI: form login, session, CSRF protection.
      * Handles every request that the API chain above did not match.
+     * Swagger UI and the OpenAPI spec are public so the API can be explored in a demo;
+     * the API calls made from Swagger UI still go through the API chain and need credentials.
      */
     @Bean
     @Order(2)
@@ -56,6 +58,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/login", "/access-denied").permitAll()
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/cases/new").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/cases/*/edit").hasRole("ADMIN")

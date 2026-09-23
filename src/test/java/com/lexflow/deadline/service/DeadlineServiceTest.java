@@ -2,7 +2,9 @@ package com.lexflow.deadline.service;
 
 import com.lexflow.case_.model.LegalCase;
 import com.lexflow.case_.repository.LegalCaseRepository;
+import com.lexflow.common.exception.ResourceNotFoundException;
 import com.lexflow.deadline.model.Deadline;
+import com.lexflow.deadline.model.DeadlinePriority;
 import com.lexflow.deadline.repository.DeadlineRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -202,6 +204,95 @@ class DeadlineServiceTest {
         deadlineService.deleteDeadline(999L);
 
         verify(deadlineRepository).findById(999L);
+        verify(deadlineRepository, never()).delete(any());
+    }
+
+    // ---------- REST API methods ----------
+
+    @Test
+    void getDeadlinesForCase_shouldThrowNotFound_whenCaseDoesNotExist() {
+        when(legalCaseRepository.existsById(99L)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class, () -> deadlineService.getDeadlinesForCase(99L));
+        verify(deadlineRepository, never()).findByLegalCaseIdOrderByDueDateAsc(any());
+    }
+
+    @Test
+    void getDeadlinesForCase_shouldReturnDeadlinesOfCase() {
+        Deadline deadline = new Deadline("File appeal", LocalDate.now().plusDays(10), DeadlinePriority.HIGH);
+        when(legalCaseRepository.existsById(1L)).thenReturn(true);
+        when(deadlineRepository.findByLegalCaseIdOrderByDueDateAsc(1L)).thenReturn(List.of(deadline));
+
+        List<Deadline> result = deadlineService.getDeadlinesForCase(1L);
+
+        assertEquals(1, result.size());
+        assertEquals("File appeal", result.get(0).getTitle());
+    }
+
+    @Test
+    void createDeadline_shouldAttachToCase_andStartNotCompleted() {
+        LegalCase legalCase = new LegalCase();
+        Deadline deadline = new Deadline("File appeal", LocalDate.now().plusDays(10), DeadlinePriority.HIGH);
+        deadline.setCompleted(true);
+        when(legalCaseRepository.findById(1L)).thenReturn(Optional.of(legalCase));
+        when(deadlineRepository.save(deadline)).thenReturn(deadline);
+
+        Deadline result = deadlineService.createDeadline(1L, deadline);
+
+        assertSame(legalCase, result.getLegalCase());
+        assertFalse(result.isCompleted());
+        verify(deadlineRepository).save(deadline);
+    }
+
+    @Test
+    void createDeadline_shouldThrowNotFound_whenCaseDoesNotExist() {
+        when(legalCaseRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> deadlineService.createDeadline(99L, new Deadline()));
+        verify(deadlineRepository, never()).save(any());
+    }
+
+    @Test
+    void getRequiredDeadline_shouldThrowNotFound_whenDeadlineDoesNotExist() {
+        when(deadlineRepository.findById(99L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> deadlineService.getRequiredDeadline(99L));
+
+        assertEquals("Deadline not found with id: 99", exception.getMessage());
+    }
+
+    @Test
+    void updateDeadline_shouldChangeTitleDateAndPriority_butKeepCompletedFlag() {
+        Deadline existing = new Deadline("Old", LocalDate.of(2026, 1, 1), DeadlinePriority.LOW);
+        existing.setCompleted(true);
+        Deadline changes = new Deadline("New", LocalDate.of(2026, 12, 31), DeadlinePriority.URGENT);
+        when(deadlineRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        Deadline result = deadlineService.updateDeadline(1L, changes);
+
+        assertEquals("New", result.getTitle());
+        assertEquals(LocalDate.of(2026, 12, 31), result.getDueDate());
+        assertEquals(DeadlinePriority.URGENT, result.getPriority());
+        assertTrue(result.isCompleted());
+    }
+
+    @Test
+    void completeDeadline_shouldSetCompleted() {
+        Deadline existing = new Deadline("File appeal", LocalDate.now(), DeadlinePriority.HIGH);
+        when(deadlineRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        Deadline result = deadlineService.completeDeadline(1L);
+
+        assertTrue(result.isCompleted());
+    }
+
+    @Test
+    void deleteRequiredDeadline_shouldThrowNotFound_andNotDelete_whenDeadlineDoesNotExist() {
+        when(deadlineRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> deadlineService.deleteRequiredDeadline(99L));
         verify(deadlineRepository, never()).delete(any());
     }
 }

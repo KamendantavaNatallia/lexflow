@@ -43,6 +43,8 @@ The project demonstrates a structured Spring Boot application with PostgreSQL, F
 - JUnit 5
 - Mockito
 - GitHub Actions
+- Spring Security
+- springdoc-openapi (Swagger UI)
 
 ---
 
@@ -66,3 +68,45 @@ src
 │       ├── application-dev.yml
 │       └── application-docker.yml
 └── test
+```
+
+---
+
+## REST API
+
+Interactive documentation is available at **http://localhost:8080/swagger-ui.html** (raw spec: `/v3/api-docs`).
+Click **Authorize** and log in with one of the demo users:
+
+| User | Password | Access |
+|------|----------|--------|
+| `user` | `user123` | read-only (`GET`) |
+| `admin` | `admin123` | read and write |
+
+The API uses HTTP Basic authentication, is stateless, and returns errors as
+[RFC 7807](https://www.rfc-editor.org/rfc/rfc7807) problem details (`application/problem+json`).
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/cases` | Search cases (`keyword`, `status`, `sort`, `page`, `size`) |
+| GET | `/api/v1/cases/{id}` | Get a case |
+| POST | `/api/v1/cases` | Create a case |
+| PUT | `/api/v1/cases/{id}` | Update a case |
+| DELETE | `/api/v1/cases/{id}` | Delete a case with its deadlines, notes and documents |
+| GET | `/api/v1/cases/{caseId}/deadlines` | List deadlines of a case |
+| POST | `/api/v1/cases/{caseId}/deadlines` | Add a deadline |
+| GET | `/api/v1/deadlines/overdue` | Open deadlines past their due date |
+| GET | `/api/v1/deadlines/upcoming` | Open deadlines due today or later |
+| GET / PUT / DELETE | `/api/v1/deadlines/{id}` | Read, update, delete a deadline |
+| PATCH | `/api/v1/deadlines/{id}/complete` | Mark a deadline as completed |
+| GET | `/api/v1/cases/{caseId}/notes` | List notes of a case |
+| POST | `/api/v1/cases/{caseId}/notes` | Add a note |
+| GET / PUT / DELETE | `/api/v1/notes/{id}` | Read, update, delete a note |
+
+Example:
+
+```bash
+curl -u admin:admin123 -X POST http://localhost:8080/api/v1/cases \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Lease termination","client":"Globex","type":"CONTRACT","status":"OPEN"}'
+```
+

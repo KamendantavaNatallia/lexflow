@@ -26,3 +26,10 @@ server:
 
 app:
   upload-dir: ${UPLOAD_DIR:uploads/documents}
+
+springdoc:
+  # Document only the REST API, not the Thymeleaf pages.
+  paths-to-match: /api/**
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha

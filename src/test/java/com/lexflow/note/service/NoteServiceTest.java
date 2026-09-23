@@ -2,6 +2,7 @@ package com.lexflow.note.service;
 
 import com.lexflow.case_.model.LegalCase;
 import com.lexflow.case_.repository.LegalCaseRepository;
+import com.lexflow.common.exception.ResourceNotFoundException;
 import com.lexflow.note.model.Note;
 import com.lexflow.note.repository.NoteRepository;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -120,6 +122,67 @@ class NoteServiceTest {
         noteService.deleteNote(999L);
 
         verify(noteRepository).findById(999L);
+        verify(noteRepository, never()).delete(any());
+    }
+
+    // ---------- REST API methods ----------
+
+    @Test
+    void getNotesForCase_shouldThrowNotFound_whenCaseDoesNotExist() {
+        when(legalCaseRepository.existsById(99L)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class, () -> noteService.getNotesForCase(99L));
+        verify(noteRepository, never()).findByLegalCaseIdOrderByIdDesc(any());
+    }
+
+    @Test
+    void getNotesForCase_shouldReturnNotesOfCase() {
+        when(legalCaseRepository.existsById(1L)).thenReturn(true);
+        when(noteRepository.findByLegalCaseIdOrderByIdDesc(1L)).thenReturn(List.of(new Note("Call the client")));
+
+        List<Note> result = noteService.getNotesForCase(1L);
+
+        assertEquals(1, result.size());
+        assertEquals("Call the client", result.get(0).getContent());
+    }
+
+    @Test
+    void createNote_shouldAttachToCaseAndSave() {
+        LegalCase legalCase = new LegalCase();
+        Note note = new Note("Call the client");
+        when(legalCaseRepository.findById(1L)).thenReturn(Optional.of(legalCase));
+        when(noteRepository.save(note)).thenReturn(note);
+
+        Note result = noteService.createNote(1L, note);
+
+        assertSame(legalCase, result.getLegalCase());
+        verify(noteRepository).save(note);
+    }
+
+    @Test
+    void createNote_shouldThrowNotFound_whenCaseDoesNotExist() {
+        when(legalCaseRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> noteService.createNote(99L, new Note("Text")));
+        verify(noteRepository, never()).save(any());
+    }
+
+    @Test
+    void updateNote_shouldReplaceContent() {
+        Note existing = new Note("Old text");
+        when(noteRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        Note result = noteService.updateNote(1L, new Note("New text"));
+
+        assertSame(existing, result);
+        assertEquals("New text", result.getContent());
+    }
+
+    @Test
+    void deleteRequiredNote_shouldThrowNotFound_andNotDelete_whenNoteDoesNotExist() {
+        when(noteRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> noteService.deleteRequiredNote(99L));
         verify(noteRepository, never()).delete(any());
     }
 }

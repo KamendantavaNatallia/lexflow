@@ -5,6 +5,8 @@ import com.lexflow.case_.dto.LegalCaseResponse;
 import com.lexflow.case_.mapper.LegalCaseMapper;
 import com.lexflow.case_.model.LegalCase;
 import com.lexflow.case_.service.LegalCaseService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,7 @@ import java.net.URI;
  */
 @RestController
 @RequestMapping("/api/v1/cases")
+@Tag(name = "Cases", description = "Legal cases: search, create, update, delete")
 public class LegalCaseRestController {
 
     private final LegalCaseService legalCaseService;
@@ -42,6 +45,7 @@ public class LegalCaseRestController {
     }
 
     @GetMapping
+    @Operation(summary = "Search cases by keyword and status, with sorting and paging")
     public Page<LegalCaseResponse> getCases(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false, defaultValue = "ALL") String status,
@@ -60,11 +64,13 @@ public class LegalCaseRestController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get one case")
     public LegalCaseResponse getCaseById(@PathVariable Long id) {
         return legalCaseMapper.toResponse(legalCaseService.getRequiredCase(id));
     }
 
     @PostMapping
+    @Operation(summary = "Create a case (ADMIN)")
     public ResponseEntity<LegalCaseResponse> createCase(@Valid @RequestBody LegalCaseRequest request) {
         LegalCase created = legalCaseService.createCase(legalCaseMapper.toEntity(request));
 
@@ -77,6 +83,7 @@ public class LegalCaseRestController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a case (ADMIN)")
     public LegalCaseResponse updateCase(
             @PathVariable Long id,
             @Valid @RequestBody LegalCaseRequest request
@@ -87,6 +94,7 @@ public class LegalCaseRestController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete a case with its deadlines, notes and documents (ADMIN)")
     public void deleteCase(@PathVariable Long id) {
         legalCaseService.deleteRequiredCase(id);
     }
