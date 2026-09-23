@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface DeadlineRepository extends JpaRepository<Deadline, Long> {
 
+    List<Deadline> findByLegalCaseIdOrderByDueDateAsc(Long caseId);
+
     List<Deadline> findByDueDateBeforeAndCompletedFalse(LocalDate date);
 
     List<Deadline> findByDueDateGreaterThanEqualAndCompletedFalse(LocalDate date);
